@@ -5,6 +5,17 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.02] - 2025-01-22
+
+### Added
+- Standalone .exe build support using PyInstaller
+- PyInstaller spec file (FavApp.spec) for reproducible builds
+
+### Changed
+- Updated requirements.txt to include PyInstaller
+
+---
+
 ## [26.01.01] - 2025-01-22
 
 ### Added

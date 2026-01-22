@@ -23,6 +23,8 @@ FavApp Starter/
 │   └── config.py           # Configuration management (profiles + apps)
 ├── config.json             # User configuration (created at runtime)
 ├── requirements.txt        # Python dependencies
+├── FavApp.spec             # PyInstaller build configuration
+├── dist/                   # Built executable output
 ├── PLAN.md                 # Development plan
 ├── CHANGELOG.md            # Release notes
 ├── DOCUMENTATION.md        # User and developer documentation
@@ -66,6 +68,7 @@ FavApp Starter/
 ```
 
 ## Development Commands
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -75,6 +78,11 @@ python main.py
 
 # Run from any directory
 python "e:\Projects\FavApp Starter\main.py"
+
+# Build standalone .exe
+python -m PyInstaller FavApp.spec --noconfirm
+
+# Output location: dist/FavApp Starter.exe
 ```
 
 ## Git Workflow
@@ -89,5 +97,5 @@ python "e:\Projects\FavApp Starter\main.py"
 
 ## Current Status
 
-- Version: 26.01.01
-- Status: Initial development
+- Version: 26.01.02
+- Status: Development (standalone build ready)

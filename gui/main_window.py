@@ -11,7 +11,7 @@ from .dialogs import AddAppDialog, AddProfileDialog, ConfirmDialog
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.01"
+    APP_VERSION = "26.01.02"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
         """

@@ -15,11 +15,21 @@ FavApp Starter is a Windows application that allows you to launch multiple appli
 
 ## Installation
 
-### Prerequisites
+### Option 1: Standalone Executable (Recommended)
+
+1. Download `FavApp Starter.exe` from the releases
+2. Run the executable - no installation required
+3. The config file will be created in the same directory
+
+### Option 2: Run from Source
+
+#### Prerequisites
+
 - Python 3.8 or higher
 - Windows operating system
 
-### Setup
+#### Setup
+
 1. Clone or download the repository
 2. Open a terminal in the project directory
 3. Install dependencies:
@@ -30,6 +40,17 @@ FavApp Starter is a Windows application that allows you to launch multiple appli
    ```bash
    python main.py
    ```
+
+### Building the Executable
+
+To build the standalone `.exe` yourself:
+
+```bash
+pip install -r requirements.txt
+python -m PyInstaller FavApp.spec --noconfirm
+```
+
+The executable will be created at `dist/FavApp Starter.exe`
 
 ---
 
