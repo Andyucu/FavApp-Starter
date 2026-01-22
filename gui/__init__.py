@@ -1,6 +1,21 @@
 """GUI module for FavApp Starter."""
 
 from .main_window import MainWindow
-from .dialogs import AddAppDialog, AddProfileDialog
+from .dialogs import (
+    AddAppDialog,
+    AddProfileDialog,
+    ConfirmDialog,
+    OptionsDialog,
+    AboutDialog,
+    LicenseDialog
+)
 
-__all__ = ["MainWindow", "AddAppDialog", "AddProfileDialog"]
+__all__ = [
+    "MainWindow",
+    "AddAppDialog",
+    "AddProfileDialog",
+    "ConfirmDialog",
+    "OptionsDialog",
+    "AboutDialog",
+    "LicenseDialog"
+]

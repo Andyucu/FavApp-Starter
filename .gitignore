@@ -37,6 +37,8 @@ env/
 
 # Claude Code
 .claude/
+CLAUDE.md
+PLAN.md
 
 # OS
 .DS_Store

@@ -1,17 +1,20 @@
 """Main application window for FavApp Starter."""
 
 import customtkinter as ctk
+from tkinter import Menu
 from typing import Optional
+import os
 
 from core.config import ConfigManager
 from core.launcher import AppLauncher
-from .dialogs import AddAppDialog, AddProfileDialog, ConfirmDialog
+from .dialogs import AddAppDialog, AddProfileDialog, ConfirmDialog, OptionsDialog, AboutDialog, LicenseDialog
 
 
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.02"
+    APP_VERSION = "26.01.03"
+    APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
         """
@@ -31,8 +34,14 @@ class MainWindow(ctk.CTk):
 
         # Window setup
         self.title(f"FavApp Starter v{self.APP_VERSION}")
-        self.geometry("500x450")
-        self.minsize(400, 350)
+        self.geometry("500x500")
+        self.minsize(400, 400)
+
+        # Set icon if available
+        self._set_icon()
+
+        # Create menu bar
+        self._create_menu()
 
         # Create widgets
         self._create_widgets()
@@ -41,13 +50,48 @@ class MainWindow(ctk.CTk):
         self._refresh_profile_list()
         self._refresh_app_list()
 
+    def _set_icon(self):
+        """Set the application icon."""
+        # Try to find icon in various locations
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        icon_paths = [
+            os.path.join(base_dir, "assets", "icon.ico"),
+            os.path.join(base_dir, "icon.ico"),
+        ]
+
+        for icon_path in icon_paths:
+            if os.path.exists(icon_path):
+                try:
+                    self.iconbitmap(icon_path)
+                    break
+                except Exception:
+                    pass
+
+    def _create_menu(self):
+        """Create the application menu bar."""
+        self.menubar = Menu(self)
+        self.configure(menu=self.menubar)
+
+        # File menu
+        file_menu = Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Options", command=self._show_options)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.quit)
+
+        # About menu
+        about_menu = Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="About", menu=about_menu)
+        about_menu.add_command(label="App Info", command=self._show_about)
+        about_menu.add_command(label="License", command=self._show_license)
+
     def _create_widgets(self):
         """Create all window widgets."""
         # Main container with padding
         self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.main_frame.pack(fill="both", expand=True, padx=15, pady=15)
 
-        # Header with title and theme toggle
+        # Header with title
         self._create_header()
 
         # Profile section
@@ -56,14 +100,11 @@ class MainWindow(ctk.CTk):
         # App list section
         self._create_app_list_section()
 
-        # App buttons section
-        self._create_app_buttons()
-
-        # Launch button
-        self._create_launch_button()
+        # Bottom section with fixed-size buttons
+        self._create_bottom_section()
 
     def _create_header(self):
-        """Create header with title and theme toggle."""
+        """Create header with title."""
         header_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         header_frame.pack(fill="x", pady=(0, 15))
 
@@ -73,16 +114,6 @@ class MainWindow(ctk.CTk):
             text="FavApp Starter",
             font=ctk.CTkFont(size=20, weight="bold")
         ).pack(side="left")
-
-        # Theme toggle button
-        self.theme_btn = ctk.CTkButton(
-            header_frame,
-            text="🌙" if self.config.get_theme() == "dark" else "☀️",
-            width=35,
-            height=35,
-            command=self._toggle_theme
-        )
-        self.theme_btn.pack(side="right")
 
     def _create_profile_section(self):
         """Create profile selection section."""
@@ -103,17 +134,18 @@ class MainWindow(ctk.CTk):
         )
         self.profile_dropdown.pack(side="left", padx=(0, 10))
 
-        # Add profile button
-        ctk.CTkButton(
+        # Add profile button - fixed size
+        self.add_profile_btn = ctk.CTkButton(
             profile_frame,
             text="+",
             width=35,
             height=35,
             command=self._show_add_profile_dialog
-        ).pack(side="left", padx=(0, 5))
+        )
+        self.add_profile_btn.pack(side="left", padx=(0, 5))
 
-        # Delete profile button
-        ctk.CTkButton(
+        # Delete profile button - fixed size
+        self.delete_profile_btn = ctk.CTkButton(
             profile_frame,
             text="🗑",
             width=35,
@@ -121,7 +153,8 @@ class MainWindow(ctk.CTk):
             fg_color="#d9534f",
             hover_color="#c9302c",
             command=self._delete_profile
-        ).pack(side="left")
+        )
+        self.delete_profile_btn.pack(side="left")
 
     def _create_app_list_section(self):
         """Create the application list section."""
@@ -143,22 +176,30 @@ class MainWindow(ctk.CTk):
         # Store app item widgets
         self.app_items: list[ctk.CTkFrame] = []
 
-    def _create_app_buttons(self):
-        """Create app management buttons."""
-        button_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        button_frame.pack(fill="x", pady=(0, 10))
+    def _create_bottom_section(self):
+        """Create bottom section with fixed-size buttons."""
+        # Container for bottom buttons
+        bottom_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        bottom_frame.pack(fill="x")
 
-        ctk.CTkButton(
+        # App management buttons - fixed sizes
+        button_frame = ctk.CTkFrame(bottom_frame, fg_color="transparent")
+        button_frame.pack(pady=(0, 10))
+
+        self.add_app_btn = ctk.CTkButton(
             button_frame,
             text="Add App",
             width=120,
+            height=32,
             command=self._show_add_app_dialog
-        ).pack(side="left", padx=(0, 10))
+        )
+        self.add_app_btn.pack(side="left", padx=(0, 10))
 
         self.remove_btn = ctk.CTkButton(
             button_frame,
             text="Remove Selected",
-            width=120,
+            width=140,
+            height=32,
             fg_color="gray",
             hover_color="darkgray",
             command=self._remove_selected_app,
@@ -166,16 +207,19 @@ class MainWindow(ctk.CTk):
         )
         self.remove_btn.pack(side="left")
 
-    def _create_launch_button(self):
-        """Create the main launch button."""
+        # Launch button - fixed size, centered
+        launch_frame = ctk.CTkFrame(bottom_frame, fg_color="transparent")
+        launch_frame.pack()
+
         self.launch_btn = ctk.CTkButton(
-            self.main_frame,
+            launch_frame,
             text="🚀 LAUNCH ALL",
             font=ctk.CTkFont(size=16, weight="bold"),
+            width=280,
             height=50,
             command=self._launch_all
         )
-        self.launch_btn.pack(fill="x")
+        self.launch_btn.pack()
 
     def _refresh_profile_list(self):
         """Refresh the profile dropdown."""
@@ -266,11 +310,21 @@ class MainWindow(ctk.CTk):
         self.config.set_active_profile(profile_name)
         self._refresh_app_list()
 
-    def _toggle_theme(self):
-        """Toggle between dark and light theme."""
-        new_theme = self.config.toggle_theme()
-        ctk.set_appearance_mode(new_theme)
-        self.theme_btn.configure(text="🌙" if new_theme == "dark" else "☀️")
+    def _show_options(self):
+        """Show the options dialog."""
+        OptionsDialog(self, self.config, on_theme_change=self._apply_theme)
+
+    def _apply_theme(self, theme: str):
+        """Apply theme change."""
+        ctk.set_appearance_mode(theme)
+
+    def _show_about(self):
+        """Show the about dialog."""
+        AboutDialog(self, self.APP_VERSION, self.APP_AUTHOR)
+
+    def _show_license(self):
+        """Show the license dialog."""
+        LicenseDialog(self, self.APP_AUTHOR)
 
     def _show_add_profile_dialog(self):
         """Show dialog to add a new profile."""
@@ -375,4 +429,4 @@ class MainWindow(ctk.CTk):
         dialog.geometry(f"+{x}+{y}")
 
         ctk.CTkLabel(dialog, text=message, wraplength=300).pack(pady=20, padx=20)
-        ctk.CTkButton(dialog, text="OK", width=80, command=dialog.destroy).pack(pady=(0, 20))
+        ctk.CTkButton(dialog, text="OK", width=80, height=32, command=dialog.destroy).pack(pady=(0, 20))
