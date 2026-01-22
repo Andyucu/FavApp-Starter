@@ -5,6 +5,27 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.05] - 2026-01-22
+
+### Added
+
+- Search installed applications feature - find and add apps from your system
+- Windows auto-start option in settings
+- AppFinder utility to scan registry and common directories for installed apps
+- "Search..." button in Add App dialog
+
+### Changed
+
+- Updated application icon with new design
+- Improved tooltip implementation to prevent ghost images
+
+### Fixed
+
+- Tooltip artifacts that remained visible after mouse left widget
+- Better cleanup of tooltip windows
+
+---
+
 ## [26.01.04] - 2026-01-22
 
 ### Added

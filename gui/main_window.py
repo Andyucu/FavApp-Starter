@@ -24,7 +24,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.04"
+    APP_VERSION = "26.01.05"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -612,9 +612,24 @@ class MainWindow(ctk.CTk):
     def _create_tooltip(self, widget, text: str):
         """Create a tooltip for a widget."""
         def on_enter(event):
-            tooltip = ctk.CTkToplevel(widget)
+            # Destroy any existing tooltip first
+            if hasattr(widget, '_tooltip') and widget._tooltip:
+                try:
+                    widget._tooltip.destroy()
+                except:
+                    pass
+                widget._tooltip = None
+
+            tooltip = ctk.CTkToplevel()
             tooltip.wm_overrideredirect(True)
+            tooltip.wm_attributes("-topmost", True)
             tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
+
+            # Make tooltip transparent to mouse events
+            try:
+                tooltip.wm_attributes("-transparentcolor", "white")
+            except:
+                pass
 
             label = ctk.CTkLabel(
                 tooltip,
@@ -629,9 +644,12 @@ class MainWindow(ctk.CTk):
             widget._tooltip = tooltip
 
         def on_leave(event):
-            if hasattr(widget, '_tooltip'):
-                widget._tooltip.destroy()
-                delattr(widget, '_tooltip')
+            if hasattr(widget, '_tooltip') and widget._tooltip:
+                try:
+                    widget._tooltip.destroy()
+                except:
+                    pass
+                widget._tooltip = None
 
         widget.bind("<Enter>", on_enter)
         widget.bind("<Leave>", on_leave)

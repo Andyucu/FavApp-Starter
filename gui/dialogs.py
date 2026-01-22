@@ -3,6 +3,8 @@
 import customtkinter as ctk
 from tkinter import filedialog
 from typing import Optional, Callable
+import threading
+from core.app_finder import AppFinder
 
 
 class AddAppDialog(ctk.CTkToplevel):
@@ -58,6 +60,13 @@ class AddAppDialog(ctk.CTkToplevel):
             text="Browse...",
             width=80,
             command=self._browse_file
+        ).pack(side="left", padx=(0, 5))
+
+        ctk.CTkButton(
+            path_frame,
+            text="Search...",
+            width=80,
+            command=self._search_installed_apps
         ).pack(side="left")
 
         # Name input
@@ -120,15 +129,26 @@ class AddAppDialog(ctk.CTkToplevel):
         )
 
         if path:
-            self.selected_path = path
-            self.path_entry.configure(state="normal")
-            self.path_entry.delete(0, "end")
-            self.path_entry.insert(0, path)
-            self.path_entry.configure(state="readonly")
+            self._set_selected_app(path)
 
-            # Auto-fill name from filename if empty
-            if not self.name_entry.get():
-                import os
+    def _search_installed_apps(self):
+        """Show dialog to search for installed applications."""
+        SearchAppsDialog(self, on_select=self._set_selected_app)
+
+    def _set_selected_app(self, path: str, name: str = ""):
+        """Set the selected application path and name."""
+        self.selected_path = path
+        self.path_entry.configure(state="normal")
+        self.path_entry.delete(0, "end")
+        self.path_entry.insert(0, path)
+        self.path_entry.configure(state="readonly")
+
+        # Auto-fill name from filename if empty or use provided name
+        if not self.name_entry.get():
+            import os
+            if name:
+                self.name_entry.insert(0, name)
+            else:
                 filename = os.path.splitext(os.path.basename(path))[0]
                 self.name_entry.insert(0, filename)
 
@@ -592,6 +612,18 @@ class OptionsDialog(ctk.CTkToplevel):
             command=self._on_start_min_toggle
         ).pack(side="left")
 
+        # Auto-start with Windows
+        autostart_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
+        autostart_frame.pack(fill="x", pady=(0, 8))
+
+        self.autostart_var = ctk.BooleanVar(value=AutoStart.is_enabled())
+        ctk.CTkCheckBox(
+            autostart_frame,
+            text="Start with Windows",
+            variable=self.autostart_var,
+            command=self._on_autostart_toggle
+        ).pack(side="left")
+
         # Confirm on exit
         confirm_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
         confirm_frame.pack(fill="x", pady=(0, 10))
@@ -648,6 +680,35 @@ class OptionsDialog(ctk.CTkToplevel):
     def _on_confirm_exit_toggle(self):
         """Handle confirm on exit toggle."""
         self.config.set_setting("confirm_on_exit", self.confirm_exit_var.get())
+
+    def _on_autostart_toggle(self):
+        """Handle auto-start toggle."""
+        if self.autostart_var.get():
+            if not AutoStart.enable():
+                self.autostart_var.set(False)
+                self._show_options_error("Failed to enable auto-start. Make sure you have proper permissions.")
+        else:
+            if not AutoStart.disable():
+                self.autostart_var.set(True)
+                self._show_options_error("Failed to disable auto-start.")
+
+    def _show_options_error(self, message: str):
+        """Show error message."""
+        error_dialog = ctk.CTkToplevel(self)
+        error_dialog.title("Error")
+        error_dialog.geometry("350x120")
+        error_dialog.resizable(False, False)
+        error_dialog.transient(self)
+        error_dialog.grab_set()
+
+        # Center on parent
+        error_dialog.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() - 350) // 2
+        y = self.winfo_y() + (self.winfo_height() - 120) // 2
+        error_dialog.geometry(f"350x120+{x}+{y}")
+
+        ctk.CTkLabel(error_dialog, text=message, wraplength=300).pack(pady=20, padx=20)
+        ctk.CTkButton(error_dialog, text="OK", width=80, command=error_dialog.destroy).pack()
 
 
 class AboutDialog(ctk.CTkToplevel):
@@ -823,3 +884,178 @@ SOFTWARE."""
             height=32,
             command=self.destroy
         ).pack(pady=(15, 0))
+
+
+class SearchAppsDialog(ctk.CTkToplevel):
+    """Dialog for searching installed applications."""
+
+    def __init__(self, parent, on_select: Callable[[str, str], None]):
+        """
+        Initialize the Search Apps dialog.
+
+        Args:
+            parent: Parent window
+            on_select: Callback function(path, name) called when app is selected
+        """
+        super().__init__(parent)
+
+        self.on_select = on_select
+        self.apps = []
+        self.filtered_apps = []
+
+        # Window setup
+        self.title("Search Installed Applications")
+        self.geometry("600x500")
+        self.resizable(True, True)
+
+        # Make modal
+        self.transient(parent)
+        self.grab_set()
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - 600) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 500) // 2
+        self.geometry(f"600x500+{x}+{y}")
+
+        self._create_widgets()
+        self._load_apps()
+
+    def _create_widgets(self):
+        """Create dialog widgets."""
+        # Main frame
+        main_frame = ctk.CTkFrame(self, fg_color="transparent")
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Title and status
+        header_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        header_frame.pack(fill="x", pady=(0, 10))
+
+        ctk.CTkLabel(
+            header_frame,
+            text="Installed Applications",
+            font=ctk.CTkFont(size=16, weight="bold")
+        ).pack(side="left")
+
+        self.status_label = ctk.CTkLabel(
+            header_frame,
+            text="Loading...",
+            font=ctk.CTkFont(size=11),
+            text_color="gray"
+        )
+        self.status_label.pack(side="right")
+
+        # Search box
+        search_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        search_frame.pack(fill="x", pady=(0, 10))
+
+        ctk.CTkLabel(search_frame, text="🔍", width=30).pack(side="left")
+
+        self.search_var = ctk.StringVar()
+        self.search_var.trace("w", lambda *args: self._filter_apps())
+        self.search_entry = ctk.CTkEntry(
+            search_frame,
+            placeholder_text="Search applications...",
+            textvariable=self.search_var
+        )
+        self.search_entry.pack(side="left", fill="x", expand=True, padx=(5, 0))
+
+        # App list in scrollable frame
+        self.app_list_frame = ctk.CTkScrollableFrame(main_frame)
+        self.app_list_frame.pack(fill="both", expand=True, pady=(0, 10))
+
+        # Buttons
+        button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        button_frame.pack(fill="x")
+
+        ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            width=100,
+            fg_color="gray",
+            hover_color="darkgray",
+            command=self.destroy
+        ).pack(side="right")
+
+    def _load_apps(self):
+        """Load installed applications in background."""
+        def load_thread():
+            self.apps = AppFinder.find_installed_apps()
+            self.filtered_apps = self.apps.copy()
+
+            self.after(0, self._populate_list)
+
+        threading.Thread(target=load_thread, daemon=True).start()
+
+    def _populate_list(self):
+        """Populate the app list with filtered results."""
+        # Clear existing
+        for widget in self.app_list_frame.winfo_children():
+            widget.destroy()
+
+        # Update status
+        self.status_label.configure(text=f"{len(self.filtered_apps)} apps found")
+
+        if not self.filtered_apps:
+            ctk.CTkLabel(
+                self.app_list_frame,
+                text="No applications found" if not self.apps else "No matching applications",
+                text_color="gray"
+            ).pack(pady=20)
+            return
+
+        # Create app items
+        for app in self.filtered_apps[:100]:  # Limit to 100 for performance
+            self._create_app_item(app)
+
+    def _create_app_item(self, app: dict):
+        """Create a single app list item."""
+        item_frame = ctk.CTkFrame(self.app_list_frame)
+        item_frame.pack(fill="x", pady=2, padx=5)
+
+        # App name and path
+        info_frame = ctk.CTkFrame(item_frame, fg_color="transparent")
+        info_frame.pack(side="left", fill="x", expand=True, padx=10, pady=5)
+
+        ctk.CTkLabel(
+            info_frame,
+            text=app["name"],
+            font=ctk.CTkFont(weight="bold"),
+            anchor="w"
+        ).pack(fill="x")
+
+        ctk.CTkLabel(
+            info_frame,
+            text=app["path"],
+            font=ctk.CTkFont(size=10),
+            text_color="gray",
+            anchor="w"
+        ).pack(fill="x")
+
+        # Select button
+        ctk.CTkButton(
+            item_frame,
+            text="Select",
+            width=80,
+            height=28,
+            command=lambda: self._select_app(app)
+        ).pack(side="right", padx=10)
+
+    def _filter_apps(self):
+        """Filter apps based on search query."""
+        query = self.search_var.get().lower()
+
+        if not query:
+            self.filtered_apps = self.apps.copy()
+        else:
+            self.filtered_apps = [
+                app for app in self.apps
+                if query in app["name"].lower() or query in app["path"].lower()
+            ]
+
+        self._populate_list()
+
+    def _select_app(self, app: dict):
+        """Handle app selection."""
+        self.on_select(app["path"], app["name"])
+        self.destroy()

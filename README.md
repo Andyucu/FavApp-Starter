@@ -9,7 +9,16 @@ A Windows application that allows you to launch multiple applications simultaneo
 - **One-Click Launch** - Launch all your favorite applications in a profile with a single button click
 - **Profile System** - Organize apps into different profiles (Work, Gaming, Creative, etc.)
 - **Modern UI** - Clean, modern interface with dark and light theme support
-- **Easy Configuration** - Add applications via file picker, no manual path editing required
+- **App Icon Display** - Automatically extracts and displays icons from executable files
+- **Search Installed Apps** - Find and add applications from your system with built-in search
+- **Easy Configuration** - Add applications via file picker or search, no manual path editing required
+- **Advanced App Settings** - Set command-line arguments and working directories for each app
+- **System Tray** - Minimize to system tray with quick access menu
+- **Keyboard Shortcuts** - Comprehensive keyboard shortcuts for faster workflow
+- **Auto-Start** - Option to launch with Windows startup
+- **Profile Management** - Duplicate, rename, import/export profiles easily
+- **Search & Filter** - Quickly find apps in large collections
+- **Window Memory** - Remembers window position and size
 - **Persistent Settings** - Your profiles and apps are automatically saved and restored
 - **Portable** - Standalone executable, no installation required
 
@@ -81,19 +90,40 @@ The executable will be created at `dist/FavApp Starter.exe`
 
 ### Managing Applications
 
-- **Add App**: Click "Add App", browse for an executable, and enter a name
+- **Add App**: Click "Add App", then either:
+  - Browse for an executable manually
+  - Click "Search..." to find installed applications on your system
+- **Edit App**: Click the edit button (✎) on any app to modify its settings
+- **Launch Single App**: Double-click an app name to launch it individually
 - **Remove App**: Check the apps you want to remove and click "Remove Selected"
+- **Search Apps**: Use the search bar to filter apps by name or path
 
 ### Settings
 
 Access settings via **File > Options**:
 
 - **Theme**: Choose between Dark, Light, or System theme
+- **Show Application Icons**: Toggle icon display in app list
+- **Launch Delay**: Set delay (in milliseconds) between launching apps
+- **Minimize to System Tray**: Enable system tray integration
+- **Start Minimized**: Launch minimized to tray on startup
+- **Start with Windows**: Automatically launch when Windows starts
+- **Confirm Before Exit**: Show confirmation dialog when closing
 
 ### About & License
 
 - **About**: View app information via **About > App Info**
 - **License**: View the MIT license via **About > License**
+
+### Keyboard Shortcuts
+
+- **Ctrl+A**: Add new application
+- **Ctrl+N**: Create new profile
+- **Ctrl+D**: Duplicate current profile
+- **Ctrl+L**: Launch all apps in current profile
+- **Ctrl+,**: Open options/settings
+- **Ctrl+Q**: Exit application
+- **Del**: Remove selected apps
 
 ## Configuration
 

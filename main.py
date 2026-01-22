@@ -5,7 +5,7 @@ FavApp Starter - Launch your favorite apps with one click.
 A Windows application that allows you to organize applications into profiles
 and launch them all simultaneously.
 
-Version: 26.01.04
+Version: 26.01.05
 """
 
 import sys
