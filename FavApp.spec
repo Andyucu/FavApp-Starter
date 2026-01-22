@@ -28,6 +28,8 @@ a = Analysis(
         'darkdetect',
         'PIL',
         'PIL._tkinter_finder',
+        'pystray',
+        'pystray._win32',
     ],
     hookspath=[],
     hooksconfig={},

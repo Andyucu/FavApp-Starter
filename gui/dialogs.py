@@ -8,13 +8,13 @@ from typing import Optional, Callable
 class AddAppDialog(ctk.CTkToplevel):
     """Dialog for adding a new application."""
 
-    def __init__(self, parent, on_add: Callable[[str, str], None]):
+    def __init__(self, parent, on_add: Callable[[str, str, str, str], None]):
         """
         Initialize the Add App dialog.
 
         Args:
             parent: Parent window
-            on_add: Callback function(name, path) called when app is added
+            on_add: Callback function(name, path, arguments, working_dir) called when app is added
         """
         super().__init__(parent)
 
@@ -23,7 +23,7 @@ class AddAppDialog(ctk.CTkToplevel):
 
         # Window setup
         self.title("Add Application")
-        self.geometry("500x200")
+        self.geometry("500x300")
         self.resizable(False, False)
 
         # Make modal
@@ -33,7 +33,7 @@ class AddAppDialog(ctk.CTkToplevel):
         # Center on parent
         self.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - 500) // 2
-        y = parent.winfo_y() + (parent.winfo_height() - 200) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 300) // 2
         self.geometry(f"+{x}+{y}")
 
         self._create_widgets()
@@ -46,7 +46,7 @@ class AddAppDialog(ctk.CTkToplevel):
 
         # Path selection
         path_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
-        path_frame.pack(fill="x", pady=(0, 15))
+        path_frame.pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(path_frame, text="Application:", width=80, anchor="w").pack(side="left")
 
@@ -62,12 +62,30 @@ class AddAppDialog(ctk.CTkToplevel):
 
         # Name input
         name_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
-        name_frame.pack(fill="x", pady=(0, 20))
+        name_frame.pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(name_frame, text="Name:", width=80, anchor="w").pack(side="left")
 
         self.name_entry = ctk.CTkEntry(name_frame, width=370, placeholder_text="Enter a display name")
         self.name_entry.pack(side="left")
+
+        # Arguments input
+        args_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        args_frame.pack(fill="x", pady=(0, 10))
+
+        ctk.CTkLabel(args_frame, text="Arguments:", width=80, anchor="w").pack(side="left")
+
+        self.args_entry = ctk.CTkEntry(args_frame, width=370, placeholder_text="Command-line arguments (optional)")
+        self.args_entry.pack(side="left")
+
+        # Working directory input
+        workdir_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        workdir_frame.pack(fill="x", pady=(0, 20))
+
+        ctk.CTkLabel(workdir_frame, text="Working Dir:", width=80, anchor="w").pack(side="left")
+
+        self.workdir_entry = ctk.CTkEntry(workdir_frame, width=370, placeholder_text="Working directory (optional)")
+        self.workdir_entry.pack(side="left")
 
         # Buttons
         button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
@@ -118,6 +136,8 @@ class AddAppDialog(ctk.CTkToplevel):
         """Handle Add button click."""
         name = self.name_entry.get().strip()
         path = self.selected_path
+        arguments = self.args_entry.get().strip()
+        working_dir = self.workdir_entry.get().strip()
 
         if not path:
             self._show_error("Please select an application file.")
@@ -127,7 +147,136 @@ class AddAppDialog(ctk.CTkToplevel):
             self._show_error("Please enter a name for the application.")
             return
 
-        self.on_add(name, path)
+        self.on_add(name, path, arguments, working_dir)
+        self.destroy()
+
+    def _show_error(self, message: str):
+        """Show error message dialog."""
+        error_dialog = ctk.CTkToplevel(self)
+        error_dialog.title("Error")
+        error_dialog.geometry("300x100")
+        error_dialog.resizable(False, False)
+        error_dialog.transient(self)
+        error_dialog.grab_set()
+
+        ctk.CTkLabel(error_dialog, text=message, wraplength=260).pack(pady=20)
+        ctk.CTkButton(error_dialog, text="OK", width=80, command=error_dialog.destroy).pack()
+
+
+class EditAppDialog(ctk.CTkToplevel):
+    """Dialog for editing an existing application."""
+
+    def __init__(self, parent, app_data: dict, on_save: Callable[[str, str, str, str], None]):
+        """
+        Initialize the Edit App dialog.
+
+        Args:
+            parent: Parent window
+            app_data: Dict with 'name', 'path', 'arguments', 'working_dir' keys
+            on_save: Callback function(name, path, arguments, working_dir) called when saved
+        """
+        super().__init__(parent)
+
+        self.on_save = on_save
+        self.app_data = app_data
+
+        # Window setup
+        self.title("Edit Application")
+        self.geometry("500x300")
+        self.resizable(False, False)
+
+        # Make modal
+        self.transient(parent)
+        self.grab_set()
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - 500) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 300) // 2
+        self.geometry(f"+{x}+{y}")
+
+        self._create_widgets()
+
+    def _create_widgets(self):
+        """Create dialog widgets."""
+        # Main frame with padding
+        main_frame = ctk.CTkFrame(self, fg_color="transparent")
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Path display (readonly)
+        path_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        path_frame.pack(fill="x", pady=(0, 10))
+
+        ctk.CTkLabel(path_frame, text="Application:", width=80, anchor="w").pack(side="left")
+
+        self.path_entry = ctk.CTkEntry(path_frame, width=370, state="readonly")
+        self.path_entry.pack(side="left")
+        self.path_entry.configure(state="normal")
+        self.path_entry.insert(0, self.app_data.get("path", ""))
+        self.path_entry.configure(state="readonly")
+
+        # Name input
+        name_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        name_frame.pack(fill="x", pady=(0, 10))
+
+        ctk.CTkLabel(name_frame, text="Name:", width=80, anchor="w").pack(side="left")
+
+        self.name_entry = ctk.CTkEntry(name_frame, width=370, placeholder_text="Enter a display name")
+        self.name_entry.pack(side="left")
+        self.name_entry.insert(0, self.app_data.get("name", ""))
+
+        # Arguments input
+        args_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        args_frame.pack(fill="x", pady=(0, 10))
+
+        ctk.CTkLabel(args_frame, text="Arguments:", width=80, anchor="w").pack(side="left")
+
+        self.args_entry = ctk.CTkEntry(args_frame, width=370, placeholder_text="Command-line arguments (optional)")
+        self.args_entry.pack(side="left")
+        self.args_entry.insert(0, self.app_data.get("arguments", ""))
+
+        # Working directory input
+        workdir_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        workdir_frame.pack(fill="x", pady=(0, 20))
+
+        ctk.CTkLabel(workdir_frame, text="Working Dir:", width=80, anchor="w").pack(side="left")
+
+        self.workdir_entry = ctk.CTkEntry(workdir_frame, width=370, placeholder_text="Working directory (optional)")
+        self.workdir_entry.pack(side="left")
+        self.workdir_entry.insert(0, self.app_data.get("working_dir", ""))
+
+        # Buttons
+        button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        button_frame.pack(fill="x")
+
+        ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            width=100,
+            fg_color="gray",
+            hover_color="darkgray",
+            command=self.destroy
+        ).pack(side="right", padx=(10, 0))
+
+        ctk.CTkButton(
+            button_frame,
+            text="Save",
+            width=100,
+            command=self._on_save_click
+        ).pack(side="right")
+
+    def _on_save_click(self):
+        """Handle Save button click."""
+        name = self.name_entry.get().strip()
+        path = self.app_data.get("path", "")
+        arguments = self.args_entry.get().strip()
+        working_dir = self.workdir_entry.get().strip()
+
+        if not name:
+            self._show_error("Please enter a name for the application.")
+            return
+
+        self.on_save(name, path, arguments, working_dir)
         self.destroy()
 
     def _show_error(self, message: str):
@@ -334,7 +483,7 @@ class OptionsDialog(ctk.CTkToplevel):
 
         # Window setup
         self.title("Options")
-        self.geometry("400x250")
+        self.geometry("450x450")
         self.resizable(False, False)
 
         # Make modal
@@ -343,8 +492,8 @@ class OptionsDialog(ctk.CTkToplevel):
 
         # Center on parent
         self.update_idletasks()
-        x = parent.winfo_x() + (parent.winfo_width() - 400) // 2
-        y = parent.winfo_y() + (parent.winfo_height() - 250) // 2
+        x = parent.winfo_x() + (parent.winfo_width() - 450) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 450) // 2
         self.geometry(f"+{x}+{y}")
 
         self._create_widgets()
@@ -360,13 +509,24 @@ class OptionsDialog(ctk.CTkToplevel):
             main_frame,
             text="Settings",
             font=ctk.CTkFont(size=18, weight="bold")
-        ).pack(anchor="w", pady=(0, 20))
+        ).pack(anchor="w", pady=(0, 15))
+
+        # Scrollable frame for settings
+        settings_frame = ctk.CTkScrollableFrame(main_frame, fg_color="transparent")
+        settings_frame.pack(fill="both", expand=True, pady=(0, 15))
+
+        # Appearance Section
+        ctk.CTkLabel(
+            settings_frame,
+            text="Appearance",
+            font=ctk.CTkFont(size=14, weight="bold")
+        ).pack(anchor="w", pady=(0, 10))
 
         # Theme setting
-        theme_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
-        theme_frame.pack(fill="x", pady=(0, 15))
+        theme_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
+        theme_frame.pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(theme_frame, text="Theme:", width=100, anchor="w").pack(side="left")
+        ctk.CTkLabel(theme_frame, text="Theme:", width=130, anchor="w").pack(side="left")
 
         self.theme_var = ctk.StringVar(value=self.config.get_theme().capitalize())
         theme_menu = ctk.CTkOptionMenu(
@@ -378,8 +538,71 @@ class OptionsDialog(ctk.CTkToplevel):
         )
         theme_menu.pack(side="left")
 
-        # Spacer
-        ctk.CTkFrame(main_frame, fg_color="transparent", height=50).pack(fill="x", expand=True)
+        # Show icons setting
+        icons_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
+        icons_frame.pack(fill="x", pady=(0, 15))
+
+        self.show_icons_var = ctk.BooleanVar(value=self.config.get_setting("show_app_icons", True))
+        ctk.CTkCheckBox(
+            icons_frame,
+            text="Show application icons",
+            variable=self.show_icons_var,
+            command=self._on_icons_toggle
+        ).pack(side="left")
+
+        # Behavior Section
+        ctk.CTkLabel(
+            settings_frame,
+            text="Behavior",
+            font=ctk.CTkFont(size=14, weight="bold")
+        ).pack(anchor="w", pady=(5, 10))
+
+        # Launch delay setting
+        delay_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
+        delay_frame.pack(fill="x", pady=(0, 10))
+
+        ctk.CTkLabel(delay_frame, text="Launch delay (ms):", width=130, anchor="w").pack(side="left")
+
+        self.delay_var = ctk.StringVar(value=str(self.config.get_setting("launch_delay", 0)))
+        delay_entry = ctk.CTkEntry(delay_frame, textvariable=self.delay_var, width=100)
+        delay_entry.pack(side="left")
+        delay_entry.bind("<FocusOut>", self._on_delay_change)
+
+        # Minimize to tray
+        tray_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
+        tray_frame.pack(fill="x", pady=(0, 8))
+
+        self.minimize_tray_var = ctk.BooleanVar(value=self.config.get_setting("minimize_to_tray", True))
+        ctk.CTkCheckBox(
+            tray_frame,
+            text="Minimize to system tray",
+            variable=self.minimize_tray_var,
+            command=self._on_minimize_tray_toggle
+        ).pack(side="left")
+
+        # Start minimized
+        start_min_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
+        start_min_frame.pack(fill="x", pady=(0, 8))
+
+        self.start_min_var = ctk.BooleanVar(value=self.config.get_setting("start_minimized", False))
+        ctk.CTkCheckBox(
+            start_min_frame,
+            text="Start minimized",
+            variable=self.start_min_var,
+            command=self._on_start_min_toggle
+        ).pack(side="left")
+
+        # Confirm on exit
+        confirm_frame = ctk.CTkFrame(settings_frame, fg_color="transparent")
+        confirm_frame.pack(fill="x", pady=(0, 10))
+
+        self.confirm_exit_var = ctk.BooleanVar(value=self.config.get_setting("confirm_on_exit", False))
+        ctk.CTkCheckBox(
+            confirm_frame,
+            text="Confirm before exit",
+            variable=self.confirm_exit_var,
+            command=self._on_confirm_exit_toggle
+        ).pack(side="left")
 
         # Close button
         button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
@@ -398,6 +621,33 @@ class OptionsDialog(ctk.CTkToplevel):
         theme = value.lower()
         self.config.set_theme(theme)
         self.on_theme_change(theme)
+
+    def _on_icons_toggle(self):
+        """Handle show icons toggle."""
+        self.config.set_setting("show_app_icons", self.show_icons_var.get())
+
+    def _on_delay_change(self, event=None):
+        """Handle launch delay change."""
+        try:
+            delay = int(self.delay_var.get())
+            if delay < 0:
+                delay = 0
+            self.config.set_setting("launch_delay", delay)
+        except ValueError:
+            self.delay_var.set("0")
+            self.config.set_setting("launch_delay", 0)
+
+    def _on_minimize_tray_toggle(self):
+        """Handle minimize to tray toggle."""
+        self.config.set_setting("minimize_to_tray", self.minimize_tray_var.get())
+
+    def _on_start_min_toggle(self):
+        """Handle start minimized toggle."""
+        self.config.set_setting("start_minimized", self.start_min_var.get())
+
+    def _on_confirm_exit_toggle(self):
+        """Handle confirm on exit toggle."""
+        self.config.set_setting("confirm_on_exit", self.confirm_exit_var.get())
 
 
 class AboutDialog(ctk.CTkToplevel):

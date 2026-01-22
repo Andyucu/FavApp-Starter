@@ -3,6 +3,7 @@
 from .main_window import MainWindow
 from .dialogs import (
     AddAppDialog,
+    EditAppDialog,
     AddProfileDialog,
     ConfirmDialog,
     OptionsDialog,
@@ -13,6 +14,7 @@ from .dialogs import (
 __all__ = [
     "MainWindow",
     "AddAppDialog",
+    "EditAppDialog",
     "AddProfileDialog",
     "ConfirmDialog",
     "OptionsDialog",

@@ -5,6 +5,41 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.04] - 2026-01-22
+
+### Added
+
+- App icon extraction and display in application list
+- System tray support with minimize to tray option (requires pystray)
+- Edit app functionality with dedicated dialog
+- Search/filter bar to quickly find apps
+- Double-click on app name to launch individual applications
+- Tooltips on all buttons showing keyboard shortcuts
+- Status bar at bottom showing last launch time and current status
+- Window position and size memory (restored on startup)
+- Launch delay option (configurable in Options)
+- Import/export profiles feature (single or all profiles)
+- Duplicate profile feature
+- Rename profile feature
+- App arguments and working directory support
+- Comprehensive keyboard shortcuts (Ctrl+A, Ctrl+L, Ctrl+N, Ctrl+D, Ctrl+Q, Del, etc.)
+- Visual polish with hover effects
+- Expanded Options dialog with all new settings
+- Profile menu in menu bar
+
+### Changed
+
+- App list items now show icons (when enabled), edit buttons, and support double-click to launch
+- AddAppDialog now includes arguments and working directory fields
+- Launch process runs in background thread with progress updates
+- Enhanced app management with full CRUD operations
+
+### Fixed
+
+- Window geometry now properly saved and restored between sessions
+
+---
+
 ## [26.01.03] - 2025-01-22
 
 ### Added
