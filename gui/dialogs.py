@@ -5,6 +5,7 @@ from tkinter import filedialog
 from typing import Optional, Callable
 import threading
 from core.app_finder import AppFinder
+from core.autostart import AutoStart
 
 
 class AddAppDialog(ctk.CTkToplevel):

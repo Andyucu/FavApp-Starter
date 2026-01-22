@@ -24,7 +24,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.05"
+    APP_VERSION = "26.01.06"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -611,45 +611,60 @@ class MainWindow(ctk.CTk):
 
     def _create_tooltip(self, widget, text: str):
         """Create a tooltip for a widget."""
-        def on_enter(event):
-            # Destroy any existing tooltip first
-            if hasattr(widget, '_tooltip') and widget._tooltip:
+        tooltip_window = None
+        after_id = None
+
+        def destroy_tooltip():
+            """Safely destroy the tooltip."""
+            nonlocal tooltip_window, after_id
+            if after_id:
+                widget.after_cancel(after_id)
+                after_id = None
+            if tooltip_window:
                 try:
-                    widget._tooltip.destroy()
+                    tooltip_window.destroy()
                 except:
                     pass
-                widget._tooltip = None
+                tooltip_window = None
 
-            tooltip = ctk.CTkToplevel()
-            tooltip.wm_overrideredirect(True)
-            tooltip.wm_attributes("-topmost", True)
-            tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
+        def on_enter(event):
+            nonlocal tooltip_window, after_id
+            # Clear any existing tooltip
+            destroy_tooltip()
 
-            # Make tooltip transparent to mouse events
-            try:
-                tooltip.wm_attributes("-transparentcolor", "white")
-            except:
-                pass
+            # Create tooltip after a small delay
+            def show_tooltip():
+                nonlocal tooltip_window
+                try:
+                    tooltip_window = ctk.CTkToplevel(widget)
+                    tooltip_window.wm_overrideredirect(True)
+                    tooltip_window.wm_attributes("-topmost", True)
 
-            label = ctk.CTkLabel(
-                tooltip,
-                text=text,
-                fg_color=("gray75", "gray25"),
-                corner_radius=6,
-                padx=8,
-                pady=4
-            )
-            label.pack()
+                    # Position tooltip
+                    x = event.x_root + 10
+                    y = event.y_root + 10
+                    tooltip_window.wm_geometry(f"+{x}+{y}")
 
-            widget._tooltip = tooltip
+                    # Create label
+                    label = ctk.CTkLabel(
+                        tooltip_window,
+                        text=text,
+                        fg_color=("gray75", "gray25"),
+                        corner_radius=6,
+                        padx=8,
+                        pady=4
+                    )
+                    label.pack()
+
+                    # Update to ensure proper rendering
+                    tooltip_window.update_idletasks()
+                except:
+                    pass
+
+            after_id = widget.after(500, show_tooltip)
 
         def on_leave(event):
-            if hasattr(widget, '_tooltip') and widget._tooltip:
-                try:
-                    widget._tooltip.destroy()
-                except:
-                    pass
-                widget._tooltip = None
+            destroy_tooltip()
 
         widget.bind("<Enter>", on_enter)
         widget.bind("<Leave>", on_leave)

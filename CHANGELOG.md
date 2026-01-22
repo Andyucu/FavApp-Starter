@@ -5,6 +5,22 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.06] - 2026-01-22
+
+### Fixed
+
+- Missing AutoStart import causing Windows auto-start option to not appear in settings
+- Tooltip ghost images with improved cleanup and delayed rendering
+- Application icon not updating properly in executable
+- Icon display in README now shows new icon
+
+### Changed
+
+- Tooltip now shows after 500ms delay for better UX
+- Build process now creates version-specific build folders (Build_v26.01.06)
+
+---
+
 ## [26.01.05] - 2026-01-22
 
 ### Added
