@@ -5,6 +5,34 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.11] - 2026-01-23
+
+### Added
+
+- Save Profile button (💾) next to New Profile button for manual saves
+- Fallback icon rendering when exe icon extraction fails (shows first letter of app name)
+- Debug logging for tray icon creation
+- Better error handling for icon extraction and tray icon creation
+
+### Fixed
+
+- **CRITICAL**: Config now saves to executable directory (not temp dir) when running as .exe
+- **CRITICAL**: Profiles now persist correctly across app restarts
+- **CRITICAL**: Last used profile loads on startup
+- App icons no longer show as blank squares - added fallback rendering
+- Tray icon initialization improved with better error handling
+- Launch button now shows play icon (▶) instead of rocket (🚀)
+- Icon cache now uses unique keys to prevent conflicts
+
+### Changed
+
+- Tray icon creation happens immediately at startup (100ms delay)
+- Config.json location: next to .exe when frozen, project root when running from source
+- App icon fallback: colored square with app's first letter when extraction fails
+- Better exception handling throughout icon-related code
+
+---
+
 ## [26.01.10] - 2026-01-23
 
 ### Fixed

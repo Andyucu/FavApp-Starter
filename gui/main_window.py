@@ -24,7 +24,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.10"
+    APP_VERSION = "26.01.11"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -89,12 +89,12 @@ class MainWindow(ctk.CTk):
         self._refresh_profile_list()
         self._refresh_app_list()
 
-        # Create system tray icon
-        self.after(500, self._create_tray_icon)
+        # Create system tray icon immediately
+        self.after(100, self._init_tray_icon)
 
         # Start minimized if configured
         if self.config.get_setting("start_minimized", False):
-            self.after(100, self._minimize_to_tray)
+            self.after(200, self._minimize_to_tray)
 
     def _set_icon(self):
         """Set the application icon."""
@@ -232,6 +232,20 @@ class MainWindow(ctk.CTk):
         self.add_profile_btn.pack(side="left", padx=(0, 5))
         self._create_tooltip(self.add_profile_btn, "New Profile (Ctrl+N)")
 
+        # Save profile button - fixed size
+        self.save_profile_btn = ctk.CTkButton(
+            profile_frame,
+            text="💾",
+            width=40,
+            height=40,
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=18),
+            fg_color="#2fa572",
+            hover_color="#28a164",
+            command=self._save_profile
+        )
+        self.save_profile_btn.pack(side="left", padx=(0, 5))
+        self._create_tooltip(self.save_profile_btn, "Save Profile")
+
         # Duplicate profile button - fixed size
         self.duplicate_profile_btn = ctk.CTkButton(
             profile_frame,
@@ -317,7 +331,7 @@ class MainWindow(ctk.CTk):
 
         self.launch_btn = ctk.CTkButton(
             launch_frame,
-            text="🚀 LAUNCH ALL",
+            text="▶  LAUNCH ALL",
             font=ctk.CTkFont(family="Roboto", size=14, weight="bold"),
             width=220,
             height=45,
@@ -505,6 +519,16 @@ class MainWindow(ctk.CTk):
             self._refresh_profile_list()
             self._refresh_app_list()
 
+    def _save_profile(self):
+        """Manually save the current profile configuration."""
+        try:
+            self.config.save()
+            # Show brief status message
+            self.status_label.configure(text="✓ Profile saved successfully")
+            self.after(2000, lambda: self.status_label.configure(text=f"FavApp Starter v{self.APP_VERSION}"))
+        except Exception as e:
+            self._show_message("Save Error", f"Failed to save profile: {str(e)}")
+
     def _delete_profile(self):
         """Delete the current profile."""
         profile = self.config.get_active_profile()
@@ -596,7 +620,7 @@ class MainWindow(ctk.CTk):
                     last_launch_time = datetime.now().strftime('%Y-%m-%d %H:%M')
                     self.status_label.configure(text=f"Last launch: {last_launch_time}")
                     self.after(1500, lambda: self.launch_btn.configure(
-                        text="🚀 LAUNCH ALL",
+                        text="▶  LAUNCH ALL",
                         fg_color=["#3B8ED0", "#1F6AA5"]
                     ))
 
@@ -608,17 +632,36 @@ class MainWindow(ctk.CTk):
     def _create_app_icon(self, parent, path: str) -> ctk.CTkLabel:
         """Create app icon widget."""
         # Check cache
-        if path in self.icon_cache:
-            icon_image = self.icon_cache[path]
+        cache_key = f"{path}_40x40"
+        if cache_key in self.icon_cache:
+            icon_image = self.icon_cache[cache_key]
         else:
-            # Extract icon
-            pil_image = IconExtractor.get_icon(path, size=48)
-            if not pil_image:
-                pil_image = IconExtractor.get_default_icon(size=48)
+            try:
+                # Extract icon
+                pil_image = IconExtractor.get_icon(path, size=48)
+                if not pil_image or pil_image.size[0] == 0:
+                    # If extraction failed, create a default colored square
+                    pil_image = Image.new('RGBA', (48, 48), (100, 149, 237, 255))  # Cornflower blue
+                    # Draw first letter of app name if possible
+                    from PIL import ImageDraw, ImageFont
+                    draw = ImageDraw.Draw(pil_image)
+                    try:
+                        # Get app name from path
+                        app_name = os.path.basename(path).split('.')[0]
+                        letter = app_name[0].upper() if app_name else "?"
+                        # Draw letter in center
+                        draw.text((24, 24), letter, fill=(255, 255, 255, 255), anchor="mm")
+                    except:
+                        pass
 
-            # Convert to PhotoImage
-            icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
-            self.icon_cache[path] = icon_image
+                # Convert to CTkImage
+                icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
+                self.icon_cache[cache_key] = icon_image
+            except Exception as e:
+                # Fallback to simple default icon
+                pil_image = Image.new('RGBA', (40, 40), (128, 128, 128, 255))
+                icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
+                self.icon_cache[cache_key] = icon_image
 
         icon_label = ctk.CTkLabel(parent, image=icon_image, text="")
         return icon_label
@@ -829,6 +872,15 @@ class MainWindow(ctk.CTk):
             else:
                 self._show_message("Error", "Failed to import profiles.")
 
+    def _init_tray_icon(self):
+        """Initialize system tray icon at startup."""
+        if PYSTRAY_AVAILABLE and not self.tray_icon:
+            try:
+                self._create_tray_icon()
+                print("Tray icon created successfully")  # Debug
+            except Exception as e:
+                print(f"Failed to create tray icon: {e}")  # Debug
+
     def _minimize_to_tray(self):
         """Minimize window to system tray."""
         if not PYSTRAY_AVAILABLE or not self.config.get_setting("minimize_to_tray", True):
@@ -875,7 +927,11 @@ class MainWindow(ctk.CTk):
                 icon_image = None
 
         if icon_image is None:
-            icon_image = IconExtractor.get_default_icon(size=64)
+            try:
+                icon_image = IconExtractor.get_default_icon(size=64)
+            except:
+                # Last resort: create a simple blue square
+                icon_image = Image.new('RGBA', (64, 64), (100, 149, 237, 255))
 
         # Create profile menu items
         profiles = self.config.get_profiles()

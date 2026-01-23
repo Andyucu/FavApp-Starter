@@ -34,7 +34,15 @@ class ConfigManager:
     def __init__(self, config_path: Optional[str] = None):
         """Initialize ConfigManager with optional config file path."""
         if config_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            import sys
+            # Determine config location based on whether we're frozen or not
+            if getattr(sys, 'frozen', False):
+                # Running as .exe - save config next to executable
+                base_dir = os.path.dirname(sys.executable)
+            else:
+                # Running from source - save in project root
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
             config_path = os.path.join(base_dir, "config.json")
 
         self.config_path = config_path
