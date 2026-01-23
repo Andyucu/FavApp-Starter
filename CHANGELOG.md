@@ -103,7 +103,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved theme toggle from header to Options dialog
 - Updated LICENSE to Alexandru Teodorovici
 - Improved README.md with detailed documentation
-- Removed CLAUDE.md and PLAN.md from repository
 
 ### Fixed
 
