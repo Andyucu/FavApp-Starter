@@ -53,20 +53,22 @@ class AddAppDialog(ctk.CTkToplevel):
 
         ctk.CTkLabel(path_frame, text="Application:", width=80, anchor="w").pack(side="left")
 
-        self.path_entry = ctk.CTkEntry(path_frame, width=280, state="readonly")
+        self.path_entry = ctk.CTkEntry(path_frame, width=250, state="readonly")
         self.path_entry.pack(side="left", padx=(0, 10))
 
         ctk.CTkButton(
             path_frame,
             text="Browse...",
-            width=80,
+            width=85,
             command=self._browse_file
-        ).pack(side="left", padx=(0, 5))
+        ).pack(side="left", padx=(0, 8))
 
         ctk.CTkButton(
             path_frame,
-            text="Search...",
-            width=80,
+            text="🔍 Search...",
+            width=95,
+            fg_color="#2fa572",
+            hover_color="#28a164",
             command=self._search_installed_apps
         ).pack(side="left")
 
