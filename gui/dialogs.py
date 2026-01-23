@@ -127,11 +127,19 @@ class AddAppDialog(ctk.CTkToplevel):
     def _set_icon(self):
         """Set the window icon."""
         try:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            import sys
+            # Handle both running from source and from .exe
+            if getattr(sys, 'frozen', False):
+                # Running from .exe
+                base_dir = sys._MEIPASS
+            else:
+                # Running from source
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
                 self.iconbitmap(icon_path)
-        except:
+        except Exception as e:
             pass
 
     def _browse_file(self):
@@ -409,11 +417,19 @@ class AddProfileDialog(ctk.CTkToplevel):
     def _set_icon(self):
         """Set the window icon."""
         try:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            import sys
+            # Handle both running from source and from .exe
+            if getattr(sys, 'frozen', False):
+                # Running from .exe
+                base_dir = sys._MEIPASS
+            else:
+                # Running from source
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
                 self.iconbitmap(icon_path)
-        except:
+        except Exception as e:
             pass
 
     def _on_create_click(self):
@@ -515,11 +531,19 @@ class ConfirmDialog(ctk.CTkToplevel):
     def _set_icon(self):
         """Set the window icon."""
         try:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            import sys
+            # Handle both running from source and from .exe
+            if getattr(sys, 'frozen', False):
+                # Running from .exe
+                base_dir = sys._MEIPASS
+            else:
+                # Running from source
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
                 self.iconbitmap(icon_path)
-        except:
+        except Exception as e:
             pass
 
     def _on_confirm_click(self):
@@ -698,11 +722,19 @@ class OptionsDialog(ctk.CTkToplevel):
     def _set_icon(self):
         """Set the window icon."""
         try:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            import sys
+            # Handle both running from source and from .exe
+            if getattr(sys, 'frozen', False):
+                # Running from .exe
+                base_dir = sys._MEIPASS
+            else:
+                # Running from source
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
                 self.iconbitmap(icon_path)
-        except:
+        except Exception as e:
             pass
 
     def _on_theme_select(self, value: str):
@@ -1040,11 +1072,19 @@ class SearchAppsDialog(ctk.CTkToplevel):
     def _set_icon(self):
         """Set the window icon."""
         try:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            import sys
+            # Handle both running from source and from .exe
+            if getattr(sys, 'frozen', False):
+                # Running from .exe
+                base_dir = sys._MEIPASS
+            else:
+                # Running from source
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
                 self.iconbitmap(icon_path)
-        except:
+        except Exception as e:
             pass
 
     def _load_apps(self):

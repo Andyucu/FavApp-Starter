@@ -5,6 +5,23 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.10] - 2026-01-23
+
+### Fixed
+
+- System tray icon now properly appears when running from .exe (fixed path resolution with sys._MEIPASS)
+- Dialog window icons now display correctly in .exe builds
+- Tray icon now supports both PNG and ICO formats for better compatibility
+- Launch All button reduced to more appropriate size (220x45 from 300x55)
+
+### Changed
+
+- README icon further reduced to 51x51 pixels (5% of original, from 15%)
+- Improved icon path resolution for both source and .exe execution
+- Enhanced tray icon loading with fallback options
+
+---
+
 ## [26.01.09] - 2026-01-23
 
 ### Added

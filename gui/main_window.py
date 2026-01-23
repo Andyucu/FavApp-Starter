@@ -24,7 +24,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.09"
+    APP_VERSION = "26.01.10"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -98,8 +98,15 @@ class MainWindow(ctk.CTk):
 
     def _set_icon(self):
         """Set the application icon."""
-        # Try to find icon in various locations
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        import sys
+        # Handle both running from source and from .exe
+        if getattr(sys, 'frozen', False):
+            # Running from .exe
+            base_dir = sys._MEIPASS
+        else:
+            # Running from source
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
         icon_paths = [
             os.path.join(base_dir, "assets", "icon.ico"),
             os.path.join(base_dir, "icon.ico"),
@@ -310,10 +317,10 @@ class MainWindow(ctk.CTk):
 
         self.launch_btn = ctk.CTkButton(
             launch_frame,
-            text="🚀  LAUNCH ALL",
-            font=ctk.CTkFont(family="Roboto", size=18, weight="bold"),
-            width=300,
-            height=55,
+            text="🚀 LAUNCH ALL",
+            font=ctk.CTkFont(family="Roboto", size=14, weight="bold"),
+            width=220,
+            height=45,
             command=self._launch_all
         )
         self.launch_btn.pack()
@@ -841,12 +848,33 @@ class MainWindow(ctk.CTk):
             return
 
         # Load icon image
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        icon_path = os.path.join(base_dir, "assets", "icon.ico")
-
-        if os.path.exists(icon_path):
-            icon_image = Image.open(icon_path)
+        import sys
+        if getattr(sys, 'frozen', False):
+            base_dir = sys._MEIPASS
         else:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+        # Try PNG first for better tray icon compatibility
+        icon_path_png = os.path.join(base_dir, "assets", "icon.png")
+        icon_path_ico = os.path.join(base_dir, "assets", "icon.ico")
+
+        icon_image = None
+        if os.path.exists(icon_path_png):
+            try:
+                icon_image = Image.open(icon_path_png)
+                # Resize to reasonable tray icon size
+                icon_image = icon_image.resize((64, 64), Image.Resampling.LANCZOS)
+            except:
+                icon_image = None
+
+        if icon_image is None and os.path.exists(icon_path_ico):
+            try:
+                icon_image = Image.open(icon_path_ico)
+                icon_image = icon_image.resize((64, 64), Image.Resampling.LANCZOS)
+            except:
+                icon_image = None
+
+        if icon_image is None:
             icon_image = IconExtractor.get_default_icon(size=64)
 
         # Create profile menu items

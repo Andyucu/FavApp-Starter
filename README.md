@@ -2,7 +2,7 @@
 
 A Windows application that allows you to launch multiple applications simultaneously with a single click. Organize your favorite apps into profiles for different contexts like Work, Gaming, or Creative tasks.
 
-![FavApp Starter](assets/icon_small.png)
+![FavApp Starter](assets/icon_readme.png)
 
 ## Features
 
