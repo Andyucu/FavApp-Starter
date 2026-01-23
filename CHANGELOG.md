@@ -5,6 +5,53 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.09] - 2026-01-23
+
+### Added
+
+- System tray icon now appears at application startup (always visible)
+- Larger, clearer icons for all buttons using emoji fonts
+
+### Changed
+
+- Profile buttons (Add, Duplicate, Delete) now use clearer emoji icons (➕, 📋, 🗑️) at 40x40 size
+- Edit app button icon improved to ✏️ emoji at 35x35 size
+- Launch All button increased to 300x55 with larger font (size 18)
+- Search button in Add App dialog now larger with improved icon
+- App icons in list increased from 32x32 to 40x40 for better visibility
+- README icon resized to 15% of original (153x153) for better page layout
+- Rebuilt icon.ico from source for all dialog windows
+
+### Fixed
+
+- System tray icon not visible - now created at startup instead of only on minimize
+- App icons extracted at higher resolution (48px) for better quality
+- Dialog window icons properly display new app icon
+
+---
+
+## [26.01.08] - 2026-01-23
+
+### Added
+
+- System tray icon with profile selection menu - "Launch Profiles" submenu
+- Application icon displayed on all dialog windows
+- Modern Roboto font throughout the entire application
+
+### Changed
+
+- Add Application dialog width increased to 600px
+- Path entry field width increased to 300px
+- All dialog windows display FavApp Starter icon
+- Improved UI consistency with Roboto font family
+
+### Fixed
+
+- Search button fully visible in Add App dialog
+- All dialog windows properly sized
+
+---
+
 ## [26.01.07] - 2026-01-22
 
 ### Changed

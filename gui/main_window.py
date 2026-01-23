@@ -24,7 +24,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.08"
+    APP_VERSION = "26.01.09"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -88,6 +88,9 @@ class MainWindow(ctk.CTk):
         # Load initial data
         self._refresh_profile_list()
         self._refresh_app_list()
+
+        # Create system tray icon
+        self.after(500, self._create_tray_icon)
 
         # Start minimized if configured
         if self.config.get_setting("start_minimized", False):
@@ -213,9 +216,10 @@ class MainWindow(ctk.CTk):
         # Add profile button - fixed size
         self.add_profile_btn = ctk.CTkButton(
             profile_frame,
-            text="+",
-            width=35,
-            height=35,
+            text="➕",
+            width=40,
+            height=40,
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=18),
             command=self._show_add_profile_dialog
         )
         self.add_profile_btn.pack(side="left", padx=(0, 5))
@@ -224,9 +228,10 @@ class MainWindow(ctk.CTk):
         # Duplicate profile button - fixed size
         self.duplicate_profile_btn = ctk.CTkButton(
             profile_frame,
-            text="⎘",
-            width=35,
-            height=35,
+            text="📋",
+            width=40,
+            height=40,
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=18),
             command=self._duplicate_profile
         )
         self.duplicate_profile_btn.pack(side="left", padx=(0, 5))
@@ -235,9 +240,10 @@ class MainWindow(ctk.CTk):
         # Delete profile button - fixed size
         self.delete_profile_btn = ctk.CTkButton(
             profile_frame,
-            text="🗑",
-            width=35,
-            height=35,
+            text="🗑️",
+            width=40,
+            height=40,
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=18),
             fg_color="#d9534f",
             hover_color="#c9302c",
             command=self._delete_profile
@@ -304,10 +310,10 @@ class MainWindow(ctk.CTk):
 
         self.launch_btn = ctk.CTkButton(
             launch_frame,
-            text="🚀 LAUNCH ALL",
-            font=ctk.CTkFont(family="Roboto", size=16, weight="bold"),
-            width=280,
-            height=50,
+            text="🚀  LAUNCH ALL",
+            font=ctk.CTkFont(family="Roboto", size=18, weight="bold"),
+            width=300,
+            height=55,
             command=self._launch_all
         )
         self.launch_btn.pack()
@@ -437,9 +443,10 @@ class MainWindow(ctk.CTk):
         # Edit button
         edit_btn = ctk.CTkButton(
             item_frame,
-            text="✎",
-            width=30,
-            height=30,
+            text="✏️",
+            width=35,
+            height=35,
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=16),
             command=lambda: self._edit_app(index, app)
         )
         edit_btn.pack(side="right", padx=(5, 10))
@@ -598,12 +605,12 @@ class MainWindow(ctk.CTk):
             icon_image = self.icon_cache[path]
         else:
             # Extract icon
-            pil_image = IconExtractor.get_icon(path, size=32)
+            pil_image = IconExtractor.get_icon(path, size=48)
             if not pil_image:
-                pil_image = IconExtractor.get_default_icon(size=32)
+                pil_image = IconExtractor.get_default_icon(size=48)
 
             # Convert to PhotoImage
-            icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(32, 32))
+            icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
             self.icon_cache[path] = icon_image
 
         icon_label = ctk.CTkLabel(parent, image=icon_image, text="")
