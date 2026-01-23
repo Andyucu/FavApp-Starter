@@ -1,5 +1,6 @@
 """Dialog windows for FavApp Starter."""
 
+import os
 import customtkinter as ctk
 from tkinter import filedialog
 from typing import Optional, Callable
@@ -26,8 +27,11 @@ class AddAppDialog(ctk.CTkToplevel):
 
         # Window setup
         self.title("Add Application")
-        self.geometry("500x300")
+        self.geometry("600x300")
         self.resizable(False, False)
+
+        # Set icon
+        self._set_icon()
 
         # Make modal
         self.transient(parent)
@@ -35,7 +39,7 @@ class AddAppDialog(ctk.CTkToplevel):
 
         # Center on parent
         self.update_idletasks()
-        x = parent.winfo_x() + (parent.winfo_width() - 500) // 2
+        x = parent.winfo_x() + (parent.winfo_width() - 600) // 2
         y = parent.winfo_y() + (parent.winfo_height() - 300) // 2
         self.geometry(f"+{x}+{y}")
 
@@ -53,7 +57,7 @@ class AddAppDialog(ctk.CTkToplevel):
 
         ctk.CTkLabel(path_frame, text="Application:", width=80, anchor="w").pack(side="left")
 
-        self.path_entry = ctk.CTkEntry(path_frame, width=250, state="readonly")
+        self.path_entry = ctk.CTkEntry(path_frame, width=300, state="readonly")
         self.path_entry.pack(side="left", padx=(0, 10))
 
         ctk.CTkButton(
@@ -118,6 +122,16 @@ class AddAppDialog(ctk.CTkToplevel):
             width=100,
             command=self._on_add_click
         ).pack(side="right")
+
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except:
+            pass
 
     def _browse_file(self):
         """Open file browser to select an application."""
@@ -337,6 +351,9 @@ class AddProfileDialog(ctk.CTkToplevel):
         self.geometry("350x150")
         self.resizable(False, False)
 
+        # Set icon
+        self._set_icon()
+
         # Make modal
         self.transient(parent)
         self.grab_set()
@@ -388,6 +405,16 @@ class AddProfileDialog(ctk.CTkToplevel):
             command=self._on_create_click
         ).pack(side="right")
 
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except:
+            pass
+
     def _on_create_click(self):
         """Handle Create button click."""
         name = self.name_entry.get().strip()
@@ -438,6 +465,9 @@ class ConfirmDialog(ctk.CTkToplevel):
         self.geometry("350x130")
         self.resizable(False, False)
 
+        # Set icon
+        self._set_icon()
+
         # Make modal
         self.transient(parent)
         self.grab_set()
@@ -481,6 +511,16 @@ class ConfirmDialog(ctk.CTkToplevel):
             command=self._on_confirm_click
         ).pack(side="right")
 
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except:
+            pass
+
     def _on_confirm_click(self):
         """Handle confirm button click."""
         self.on_confirm()
@@ -509,6 +549,9 @@ class OptionsDialog(ctk.CTkToplevel):
         self.geometry("450x450")
         self.resizable(False, False)
 
+        # Set icon
+        self._set_icon()
+
         # Make modal
         self.transient(parent)
         self.grab_set()
@@ -531,7 +574,7 @@ class OptionsDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             main_frame,
             text="Settings",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(family="Roboto", size=18, weight="bold")
         ).pack(anchor="w", pady=(0, 15))
 
         # Scrollable frame for settings
@@ -542,7 +585,7 @@ class OptionsDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             settings_frame,
             text="Appearance",
-            font=ctk.CTkFont(size=14, weight="bold")
+            font=ctk.CTkFont(family="Roboto", size=14, weight="bold")
         ).pack(anchor="w", pady=(0, 10))
 
         # Theme setting
@@ -577,7 +620,7 @@ class OptionsDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             settings_frame,
             text="Behavior",
-            font=ctk.CTkFont(size=14, weight="bold")
+            font=ctk.CTkFont(family="Roboto", size=14, weight="bold")
         ).pack(anchor="w", pady=(5, 10))
 
         # Launch delay setting
@@ -650,6 +693,16 @@ class OptionsDialog(ctk.CTkToplevel):
             height=32,
             command=self.destroy
         ).pack(side="right")
+
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except:
+            pass
 
     def _on_theme_select(self, value: str):
         """Handle theme selection."""
@@ -758,14 +811,14 @@ class AboutDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             main_frame,
             text="FavApp Starter",
-            font=ctk.CTkFont(size=24, weight="bold")
+            font=ctk.CTkFont(family="Roboto", size=24, weight="bold")
         ).pack(pady=(10, 5))
 
         # Version
         ctk.CTkLabel(
             main_frame,
             text=f"Version {self.version}",
-            font=ctk.CTkFont(size=14),
+            font=ctk.CTkFont(family="Roboto", size=14),
             text_color="gray"
         ).pack(pady=(0, 20))
 
@@ -773,7 +826,7 @@ class AboutDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             main_frame,
             text="Launch your favorite applications\nwith a single click.",
-            font=ctk.CTkFont(size=13),
+            font=ctk.CTkFont(family="Roboto", size=13),
             justify="center"
         ).pack(pady=(0, 20))
 
@@ -781,7 +834,7 @@ class AboutDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             main_frame,
             text=f"Created by {self.author}",
-            font=ctk.CTkFont(size=12),
+            font=ctk.CTkFont(family="Roboto", size=12),
             text_color="gray"
         ).pack(pady=(0, 10))
 
@@ -862,7 +915,7 @@ SOFTWARE."""
         ctk.CTkLabel(
             main_frame,
             text="MIT License",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(family="Roboto", size=18, weight="bold")
         ).pack(anchor="w", pady=(0, 15))
 
         # License text in scrollable textbox
@@ -911,6 +964,9 @@ class SearchAppsDialog(ctk.CTkToplevel):
         self.geometry("600x500")
         self.resizable(True, True)
 
+        # Set icon
+        self._set_icon()
+
         # Make modal
         self.transient(parent)
         self.grab_set()
@@ -937,13 +993,13 @@ class SearchAppsDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             header_frame,
             text="Installed Applications",
-            font=ctk.CTkFont(size=16, weight="bold")
+            font=ctk.CTkFont(family="Roboto", size=16, weight="bold")
         ).pack(side="left")
 
         self.status_label = ctk.CTkLabel(
             header_frame,
             text="Loading...",
-            font=ctk.CTkFont(size=11),
+            font=ctk.CTkFont(family="Roboto", size=11),
             text_color="gray"
         )
         self.status_label.pack(side="right")
@@ -979,6 +1035,16 @@ class SearchAppsDialog(ctk.CTkToplevel):
             hover_color="darkgray",
             command=self.destroy
         ).pack(side="right")
+
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except:
+            pass
 
     def _load_apps(self):
         """Load installed applications in background."""
@@ -1023,14 +1089,14 @@ class SearchAppsDialog(ctk.CTkToplevel):
         ctk.CTkLabel(
             info_frame,
             text=app["name"],
-            font=ctk.CTkFont(weight="bold"),
+            font=ctk.CTkFont(family="Roboto", weight="bold"),
             anchor="w"
         ).pack(fill="x")
 
         ctk.CTkLabel(
             info_frame,
             text=app["path"],
-            font=ctk.CTkFont(size=10),
+            font=ctk.CTkFont(family="Roboto", size=10),
             text_color="gray",
             anchor="w"
         ).pack(fill="x")

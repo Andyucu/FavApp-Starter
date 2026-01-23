@@ -24,7 +24,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.07"
+    APP_VERSION = "26.01.08"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -172,7 +172,7 @@ class MainWindow(ctk.CTk):
         ctk.CTkLabel(
             header_frame,
             text="FavApp Starter",
-            font=ctk.CTkFont(size=20, weight="bold")
+            font=ctk.CTkFont(family="Roboto", size=20, weight="bold")
         ).pack(side="left")
 
     def _create_search_bar(self):
@@ -255,7 +255,7 @@ class MainWindow(ctk.CTk):
         ctk.CTkLabel(
             list_frame,
             text="Applications:",
-            font=ctk.CTkFont(weight="bold")
+            font=ctk.CTkFont(family="Roboto", weight="bold")
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
         # Scrollable frame for apps
@@ -305,7 +305,7 @@ class MainWindow(ctk.CTk):
         self.launch_btn = ctk.CTkButton(
             launch_frame,
             text="🚀 LAUNCH ALL",
-            font=ctk.CTkFont(size=16, weight="bold"),
+            font=ctk.CTkFont(family="Roboto", size=16, weight="bold"),
             width=280,
             height=50,
             command=self._launch_all
@@ -321,7 +321,7 @@ class MainWindow(ctk.CTk):
         self.status_label = ctk.CTkLabel(
             status_frame,
             text="Ready",
-            font=ctk.CTkFont(size=10),
+            font=ctk.CTkFont(family="Roboto", size=10),
             text_color="gray",
             anchor="w"
         )
@@ -414,7 +414,7 @@ class MainWindow(ctk.CTk):
         name_label = ctk.CTkLabel(
             info_frame,
             text=name,
-            font=ctk.CTkFont(weight="bold"),
+            font=ctk.CTkFont(family="Roboto", weight="bold"),
             anchor="w",
             cursor="hand2"
         )
@@ -429,7 +429,7 @@ class MainWindow(ctk.CTk):
         ctk.CTkLabel(
             info_frame,
             text=path_text,
-            font=ctk.CTkFont(size=11),
+            font=ctk.CTkFont(family="Roboto", size=11),
             text_color="gray",
             anchor="w"
         ).pack(fill="x")
@@ -842,13 +842,32 @@ class MainWindow(ctk.CTk):
         else:
             icon_image = IconExtractor.get_default_icon(size=64)
 
+        # Create profile menu items
+        profiles = self.config.get_profiles()
+        profile_items = []
+        for profile_name in sorted(profiles.keys()):
+            profile_items.append(
+                TrayMenuItem(
+                    profile_name,
+                    lambda p=profile_name: self.after(0, lambda: self._launch_profile_from_tray(p))
+                )
+            )
+
         # Create menu
-        menu = pystray.Menu(
-            TrayMenuItem("Show", self._show_from_tray, default=True),
-            TrayMenuItem("Launch All", lambda: self.after(0, self._launch_all)),
-            pystray.Menu.SEPARATOR,
-            TrayMenuItem("Exit", self._exit_from_tray)
-        )
+        if profile_items:
+            menu = pystray.Menu(
+                TrayMenuItem("Show", self._show_from_tray, default=True),
+                pystray.Menu.SEPARATOR,
+                TrayMenuItem("Launch Profiles", pystray.Menu(*profile_items)),
+                pystray.Menu.SEPARATOR,
+                TrayMenuItem("Exit", self._exit_from_tray)
+            )
+        else:
+            menu = pystray.Menu(
+                TrayMenuItem("Show", self._show_from_tray, default=True),
+                pystray.Menu.SEPARATOR,
+                TrayMenuItem("Exit", self._exit_from_tray)
+            )
 
         # Create icon
         self.tray_icon = pystray.Icon("FavApp", icon_image, "FavApp Starter", menu)
@@ -860,6 +879,24 @@ class MainWindow(ctk.CTk):
     def _show_from_tray(self):
         """Show window from system tray."""
         self.after(0, self.deiconify)
+
+    def _launch_profile_from_tray(self, profile_name: str):
+        """Launch all apps from a specific profile via tray icon."""
+        # Get apps from the profile
+        apps = self.config.get_apps(profile_name)
+        if not apps:
+            return
+
+        # Launch each app
+        for app_data in apps:
+            try:
+                self.launcher.launch(
+                    app_data["path"],
+                    app_data.get("arguments", ""),
+                    app_data.get("working_dir", "")
+                )
+            except Exception as e:
+                print(f"Error launching {app_data.get('name', 'Unknown')}: {e}")
 
     def _exit_from_tray(self):
         """Exit from system tray."""
