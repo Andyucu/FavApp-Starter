@@ -5,6 +5,149 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.18] - 2026-01-23
+
+### Added
+
+- **Save button in Options dialog** - Settings now require explicit Save to apply
+  - Green Save button applies all changes and closes dialog
+  - Close button cancels changes and reverts theme to original
+  - Theme changes only applied when Save is clicked
+  - Better user control over settings changes
+
+### Fixed
+
+- **CRITICAL**: App icon extraction now has extensive debug logging
+  - Added detailed console output for every icon extraction attempt
+  - Shows success/failure status for each app's icon
+  - Logs .lnk resolution process
+  - Fallback icon now uses larger, more visible font
+  - Stack traces printed for all icon extraction errors
+
+### Changed
+
+- Options dialog now uses Save/Close pattern instead of auto-save
+- Theme selection stored temporarily until Save is clicked
+- X button (close) now acts as Cancel and reverts changes
+
+---
+
+## [26.01.17] - 2026-01-23
+
+### Fixed
+
+- **CRITICAL**: Theme changes now work correctly - REAL FIX
+  - Root cause identified: OptionsDialog is modal (grab_set) which blocks parent window
+  - Theme is now applied AFTER dialog closes, not while it's open
+  - Prevents UI freezing and application becoming unresponsive
+  - Added _on_close() handler to apply theme changes on dialog close
+  - Theme selection stored and applied with 100ms delay after dialog destruction
+- **CRITICAL**: Tray icon profile launching now actually launches apps
+  - Fixed missing AppLauncher implementation in tray menu
+  - Apps from selected profile now launch correctly from system tray
+  - Uses launch_multiple() with proper threading to avoid blocking
+  - Added debug logging for tray profile launches
+
+### Changed
+
+- Theme application now uses full update() instead of update_idletasks() for complete refresh
+- Tray profile launcher runs in background thread for better responsiveness
+
+---
+
+## [26.01.16] - 2026-01-23
+
+### Fixed
+
+- **CRITICAL**: Theme changes now work properly without freezing or breaking the UI
+  - Added update_idletasks() call to force UI refresh after theme change
+  - Theme change now refreshes app list to apply theme to all widgets
+  - OptionsDialog theme handler improved with proper update sequence
+  - Application remains responsive during and after theme changes
+
+---
+
+## [26.01.15] - 2026-01-23
+
+### Fixed
+
+- **CRITICAL**: System tray icon now appears and functions correctly
+  - Complete rewrite of tray icon initialization with better error handling
+  - Fixed icon loading priority (ICO before PNG) for Windows compatibility
+  - Improved lambda functions in menu to prevent closure issues
+  - Added extensive debug logging to track icon creation process
+  - Tray icon now properly converts to RGBA mode if needed
+- App icon extraction significantly improved with debug logging
+  - Icons now extract correctly from executables
+  - Better fallback handling when extraction fails
+  - Added logging to track extraction success/failure
+
+### Changed
+
+- **LICENSE CHANGE**: Changed from MIT License to GNU General Public License v3.0
+- About dialog now includes full GPLv3 license text (no separate license window)
+- About dialog expanded to 500x550 to accommodate license information
+- Removed separate "License" menu item and LicenseDialog class
+- Add App and Remove Selected buttons now same size (130px width)
+- Improved tray icon visibility with green fallback color (#2ea572)
+
+---
+
+## [26.01.14] - 2026-01-23
+
+### Fixed
+
+- **CRITICAL**: Dialog window icons (Options, About, License, etc.) now display correctly in .exe builds
+  - All dialogs use absolute paths and delayed iconbitmap setting for better compatibility
+  - Fixed icon loading for customtkinter Toplevel windows
+- App icons now properly extracted from .lnk shortcut files
+  - Added win32com.client support to resolve shortcut targets
+  - Icons extracted from target executable instead of shortcut file
+
+### Changed
+
+- Launch All button color changed to green (#2fa572) for better visibility
+- Search button in Add App dialog increased to size 14 font and width 120
+- Search icon in Search Apps dialog increased to size 18 font
+- All dialog _set_icon methods now use consistent implementation with absolute paths
+
+---
+
+## [26.01.13] - 2026-01-23
+
+### Fixed
+
+- **CRITICAL**: System tray icon now appears correctly (fixed profile iteration bug in _create_tray_icon)
+  - Bug was calling .keys() on a list returned by get_profiles()
+  - Tray icon thread was crashing silently on startup
+- Tray icon profile menu now populates properly with all profiles
+- Theme changes remain non-blocking (from v26.01.12)
+
+### Changed
+
+- Build output now organized in versioned folders (dist/v26.01.XX/) for easier release management
+- Each release now has its own dedicated build folder
+
+---
+
+## [26.01.12] - 2026-01-23
+
+### Fixed
+
+- **CRITICAL**: Theme changes no longer freeze the application (async theme application)
+- **CRITICAL**: Export Profile functionality now correctly saves files to disk
+- **CRITICAL**: Export All Profiles functionality now correctly saves files to disk
+- All dialog window icons now display correctly (AboutDialog, LicenseDialog, EditAppDialog)
+- Enhanced system tray icon debug logging for troubleshooting
+
+### Changed
+
+- Theme changes applied asynchronously (10ms delay) to prevent UI freezing
+- All dialogs now have standardized _set_icon() method implementation
+- Improved error handling in export functions
+
+---
+
 ## [26.01.11] - 2026-01-23
 
 ### Added

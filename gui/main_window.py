@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 
 from core.config import ConfigManager
 from core.launcher import AppLauncher, IconExtractor
-from .dialogs import AddAppDialog, EditAppDialog, AddProfileDialog, ConfirmDialog, OptionsDialog, AboutDialog, LicenseDialog
+from .dialogs import AddAppDialog, EditAppDialog, AddProfileDialog, ConfirmDialog, OptionsDialog, AboutDialog
 
 # Optional pystray import for system tray
 try:
@@ -24,7 +24,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.11"
+    APP_VERSION = "26.01.18"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -147,7 +147,6 @@ class MainWindow(ctk.CTk):
         about_menu = Menu(self.menubar, tearoff=0)
         self.menubar.add_cascade(label="About", menu=about_menu)
         about_menu.add_command(label="App Info", command=self._show_about)
-        about_menu.add_command(label="License", command=self._show_license)
 
     def _create_widgets(self):
         """Create all window widgets."""
@@ -305,7 +304,7 @@ class MainWindow(ctk.CTk):
         self.add_app_btn = ctk.CTkButton(
             button_frame,
             text="Add App",
-            width=120,
+            width=130,
             height=32,
             command=self._show_add_app_dialog
         )
@@ -315,7 +314,7 @@ class MainWindow(ctk.CTk):
         self.remove_btn = ctk.CTkButton(
             button_frame,
             text="Remove Selected",
-            width=140,
+            width=130,
             height=32,
             fg_color="gray",
             hover_color="darkgray",
@@ -335,6 +334,8 @@ class MainWindow(ctk.CTk):
             font=ctk.CTkFont(family="Roboto", size=14, weight="bold"),
             width=220,
             height=45,
+            fg_color="#2fa572",
+            hover_color="#28a164",
             command=self._launch_all
         )
         self.launch_btn.pack()
@@ -493,16 +494,28 @@ class MainWindow(ctk.CTk):
         OptionsDialog(self, self.config, on_theme_change=self._apply_theme)
 
     def _apply_theme(self, theme: str):
-        """Apply theme change."""
-        ctk.set_appearance_mode(theme)
+        """Apply theme change after Options dialog closes."""
+        try:
+            print(f"Applying theme: {theme}")
+
+            # Set the appearance mode
+            ctk.set_appearance_mode(theme)
+
+            # Force complete UI update
+            self.update()
+
+            # Refresh the app list to apply theme to all widgets
+            self._refresh_app_list()
+
+            print(f"Theme applied successfully: {theme}")
+        except Exception as e:
+            print(f"Error applying theme: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _show_about(self):
         """Show the about dialog."""
         AboutDialog(self, self.APP_VERSION, self.APP_AUTHOR)
-
-    def _show_license(self):
-        """Show the license dialog."""
-        LicenseDialog(self, self.APP_AUTHOR)
 
     def _show_add_profile_dialog(self):
         """Show dialog to add a new profile."""
@@ -616,12 +629,12 @@ class MainWindow(ctk.CTk):
                     )
                 else:
                     # Brief success indicator
-                    self.launch_btn.configure(text="✓ Launched!", fg_color="green")
+                    self.launch_btn.configure(text="✓ Launched!", fg_color="#1e7a4f")
                     last_launch_time = datetime.now().strftime('%Y-%m-%d %H:%M')
                     self.status_label.configure(text=f"Last launch: {last_launch_time}")
                     self.after(1500, lambda: self.launch_btn.configure(
                         text="▶  LAUNCH ALL",
-                        fg_color=["#3B8ED0", "#1F6AA5"]
+                        fg_color="#2fa572"
                     ))
 
             self.after(0, update_ui)
@@ -636,32 +649,64 @@ class MainWindow(ctk.CTk):
         if cache_key in self.icon_cache:
             icon_image = self.icon_cache[cache_key]
         else:
-            try:
-                # Extract icon
-                pil_image = IconExtractor.get_icon(path, size=48)
-                if not pil_image or pil_image.size[0] == 0:
-                    # If extraction failed, create a default colored square
-                    pil_image = Image.new('RGBA', (48, 48), (100, 149, 237, 255))  # Cornflower blue
-                    # Draw first letter of app name if possible
-                    from PIL import ImageDraw, ImageFont
-                    draw = ImageDraw.Draw(pil_image)
-                    try:
-                        # Get app name from path
-                        app_name = os.path.basename(path).split('.')[0]
-                        letter = app_name[0].upper() if app_name else "?"
-                        # Draw letter in center
-                        draw.text((24, 24), letter, fill=(255, 255, 255, 255), anchor="mm")
-                    except:
-                        pass
+            pil_image = None
 
-                # Convert to CTkImage
-                icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
-                self.icon_cache[cache_key] = icon_image
+            # Try to extract icon from the file
+            try:
+                # For .lnk files, try to resolve the target first
+                target_path = path
+                if path.lower().endswith('.lnk'):
+                    try:
+                        import win32com.client
+                        shell = win32com.client.Dispatch("WScript.Shell")
+                        shortcut = shell.CreateShortCut(path)
+                        target_path = shortcut.Targetpath
+                        print(f"Resolved .lnk: {path} -> {target_path}")
+                        if not target_path or not os.path.exists(target_path):
+                            print(f"Target path invalid, using original: {path}")
+                            target_path = path
+                    except Exception as e:
+                        print(f"Failed to resolve .lnk: {e}")
+                        target_path = path
+
+                # Extract icon from target
+                print(f"Attempting icon extraction from: {target_path}")
+                pil_image = IconExtractor.get_icon(target_path, size=48)
+
+                # Verify the image is valid
+                if pil_image and pil_image.size[0] > 0 and pil_image.size[1] > 0:
+                    print(f"✓ Icon successfully extracted and validated")
+                else:
+                    print(f"✗ Icon extraction returned invalid image")
+                    pil_image = None
+
             except Exception as e:
-                # Fallback to simple default icon
-                pil_image = Image.new('RGBA', (40, 40), (128, 128, 128, 255))
-                icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
-                self.icon_cache[cache_key] = icon_image
+                print(f"Exception during icon extraction: {e}")
+                import traceback
+                traceback.print_exc()
+                pil_image = None
+
+            # If extraction failed, create a fallback icon
+            if not pil_image:
+                print(f"Creating fallback icon for: {os.path.basename(path)}")
+                pil_image = Image.new('RGBA', (48, 48), (100, 149, 237, 255))
+                from PIL import ImageDraw, ImageFont
+                draw = ImageDraw.Draw(pil_image)
+                try:
+                    app_name = os.path.basename(path).split('.')[0]
+                    letter = app_name[0].upper() if app_name else "?"
+                    # Try to use a large font
+                    try:
+                        font = ImageFont.truetype("arial.ttf", 32)
+                    except:
+                        font = ImageFont.load_default()
+                    draw.text((24, 24), letter, fill=(255, 255, 255, 255), font=font, anchor="mm")
+                except Exception as e:
+                    print(f"Error drawing fallback letter: {e}")
+
+            # Convert to CTkImage
+            icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
+            self.icon_cache[cache_key] = icon_image
 
         icon_label = ctk.CTkLabel(parent, image=icon_image, text="")
         return icon_label
@@ -874,12 +919,22 @@ class MainWindow(ctk.CTk):
 
     def _init_tray_icon(self):
         """Initialize system tray icon at startup."""
-        if PYSTRAY_AVAILABLE and not self.tray_icon:
-            try:
-                self._create_tray_icon()
-                print("Tray icon created successfully")  # Debug
-            except Exception as e:
-                print(f"Failed to create tray icon: {e}")  # Debug
+        if not PYSTRAY_AVAILABLE:
+            print("WARNING: pystray not available - system tray icon will not be created")
+            return
+
+        if self.tray_icon:
+            print("Tray icon already exists")
+            return
+
+        try:
+            print("Creating system tray icon...")
+            self._create_tray_icon()
+            print("✓ Tray icon created and running")
+        except Exception as e:
+            print(f"ERROR: Failed to create tray icon: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _minimize_to_tray(self):
         """Minimize window to system tray."""
@@ -897,6 +952,11 @@ class MainWindow(ctk.CTk):
     def _create_tray_icon(self):
         """Create system tray icon."""
         if not PYSTRAY_AVAILABLE:
+            print("pystray not available")
+            return
+
+        if self.tray_icon and self.tray_icon.visible:
+            print("Tray icon already running")
             return
 
         # Load icon image
@@ -906,41 +966,52 @@ class MainWindow(ctk.CTk):
         else:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-        # Try PNG first for better tray icon compatibility
-        icon_path_png = os.path.join(base_dir, "assets", "icon.png")
+        # Try ICO first (better Windows compatibility)
         icon_path_ico = os.path.join(base_dir, "assets", "icon.ico")
+        icon_path_png = os.path.join(base_dir, "assets", "icon.png")
 
         icon_image = None
-        if os.path.exists(icon_path_png):
-            try:
-                icon_image = Image.open(icon_path_png)
-                # Resize to reasonable tray icon size
-                icon_image = icon_image.resize((64, 64), Image.Resampling.LANCZOS)
-            except:
-                icon_image = None
 
-        if icon_image is None and os.path.exists(icon_path_ico):
+        # Try ICO first
+        if os.path.exists(icon_path_ico):
             try:
+                print(f"Loading icon from: {icon_path_ico}")
                 icon_image = Image.open(icon_path_ico)
-                icon_image = icon_image.resize((64, 64), Image.Resampling.LANCZOS)
-            except:
+                # Convert to RGBA if needed
+                if icon_image.mode != 'RGBA':
+                    icon_image = icon_image.convert('RGBA')
+                print(f"Icon loaded: {icon_image.size}, mode: {icon_image.mode}")
+            except Exception as e:
+                print(f"Failed to load ICO: {e}")
                 icon_image = None
 
-        if icon_image is None:
+        # Fallback to PNG
+        if icon_image is None and os.path.exists(icon_path_png):
             try:
-                icon_image = IconExtractor.get_default_icon(size=64)
-            except:
-                # Last resort: create a simple blue square
-                icon_image = Image.new('RGBA', (64, 64), (100, 149, 237, 255))
+                print(f"Loading icon from: {icon_path_png}")
+                icon_image = Image.open(icon_path_png)
+                if icon_image.mode != 'RGBA':
+                    icon_image = icon_image.convert('RGBA')
+                # Resize for tray
+                icon_image = icon_image.resize((64, 64), Image.Resampling.LANCZOS)
+                print(f"PNG icon loaded: {icon_image.size}")
+            except Exception as e:
+                print(f"Failed to load PNG: {e}")
+                icon_image = None
+
+        # Last resort fallback
+        if icon_image is None:
+            print("Creating fallback icon")
+            icon_image = Image.new('RGBA', (64, 64), (46, 165, 114, 255))
 
         # Create profile menu items
         profiles = self.config.get_profiles()
         profile_items = []
-        for profile_name in sorted(profiles.keys()):
+        for profile_name in sorted(profiles):
             profile_items.append(
                 TrayMenuItem(
                     profile_name,
-                    lambda p=profile_name: self.after(0, lambda: self._launch_profile_from_tray(p))
+                    lambda p=profile_name: self._launch_profile_from_tray(p)
                 )
             )
 
@@ -960,34 +1031,70 @@ class MainWindow(ctk.CTk):
                 TrayMenuItem("Exit", self._exit_from_tray)
             )
 
-        # Create icon
-        self.tray_icon = pystray.Icon("FavApp", icon_image, "FavApp Starter", menu)
+        # Create and run icon
+        try:
+            print("Creating pystray.Icon object...")
+            self.tray_icon = pystray.Icon(
+                "FavApp Starter",
+                icon_image,
+                "FavApp Starter",
+                menu
+            )
+            print("pystray.Icon object created successfully")
 
-        # Run in thread
-        self.tray_thread = threading.Thread(target=self.tray_icon.run, daemon=True)
-        self.tray_thread.start()
+            # Start icon in background thread
+            print("Starting tray icon thread...")
+            self.tray_thread = threading.Thread(target=self._run_tray_icon, daemon=True)
+            self.tray_thread.start()
+            print(f"Tray icon thread started (alive: {self.tray_thread.is_alive()})")
+        except Exception as e:
+            print(f"ERROR creating tray icon: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _run_tray_icon(self):
+        """Run the tray icon in a separate thread."""
+        try:
+            print("Tray icon run() starting...")
+            self.tray_icon.run()
+            print("Tray icon run() completed")
+        except Exception as e:
+            print(f"ERROR in tray icon run(): {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _show_from_tray(self):
         """Show window from system tray."""
-        self.after(0, self.deiconify)
+        print("Show from tray called")
+        self.after(0, lambda: (self.deiconify(), self.lift(), self.focus_force()))
 
     def _launch_profile_from_tray(self, profile_name: str):
         """Launch all apps from a specific profile via tray icon."""
+        print(f"Launching profile from tray: {profile_name}")
+
         # Get apps from the profile
         apps = self.config.get_apps(profile_name)
         if not apps:
+            print(f"No apps in profile: {profile_name}")
             return
 
-        # Launch each app
-        for app_data in apps:
-            try:
-                self.launcher.launch(
-                    app_data["path"],
-                    app_data.get("arguments", ""),
-                    app_data.get("working_dir", "")
-                )
-            except Exception as e:
-                print(f"Error launching {app_data.get('name', 'Unknown')}: {e}")
+        print(f"Found {len(apps)} apps to launch")
+
+        # Get launch delay from config
+        delay_ms = self.config.get_setting("launch_delay", 0)
+
+        # Launch apps in background thread
+        def launch_thread():
+            results = AppLauncher.launch_multiple(apps, delay_ms=delay_ms)
+            errors = [r for r in results if not r["success"]]
+
+            if errors:
+                print(f"Launch errors: {errors}")
+            else:
+                print(f"Successfully launched all {len(apps)} apps from profile: {profile_name}")
+
+        # Run in thread to avoid blocking tray
+        threading.Thread(target=launch_thread, daemon=True).start()
 
     def _exit_from_tray(self):
         """Exit from system tray."""

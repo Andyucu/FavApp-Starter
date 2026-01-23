@@ -331,14 +331,26 @@ class ConfigManager:
         self.save()
 
     # Import/Export
-    def export_profile(self, profile_name: str) -> Optional[dict]:
-        """Export a profile as a dictionary."""
-        if profile_name in self.config["profiles"]:
-            return {
-                "name": profile_name,
-                "data": self._deep_copy(self.config["profiles"][profile_name])
-            }
-        return None
+    def export_profile(self, profile_name: str, filepath: str = None) -> bool:
+        """Export a profile to a JSON file."""
+        if profile_name not in self.config["profiles"]:
+            return False
+
+        profile_data = {
+            "name": profile_name,
+            "data": self._deep_copy(self.config["profiles"][profile_name])
+        }
+
+        if filepath:
+            try:
+                with open(filepath, "w", encoding="utf-8") as f:
+                    json.dump(profile_data, f, indent=2, ensure_ascii=False)
+                return True
+            except Exception:
+                return False
+        else:
+            # Legacy: return dictionary if no filepath provided
+            return profile_data
 
     def import_profile(self, profile_data: dict, new_name: Optional[str] = None) -> bool:
         """Import a profile from a dictionary."""
@@ -359,12 +371,23 @@ class ConfigManager:
         except Exception:
             return False
 
-    def export_all_profiles(self) -> dict:
-        """Export all profiles."""
-        return {
+    def export_all_profiles(self, filepath: str = None) -> bool:
+        """Export all profiles to a JSON file."""
+        export_data = {
             "version": "1.0",
             "profiles": self._deep_copy(self.config["profiles"])
         }
+
+        if filepath:
+            try:
+                with open(filepath, "w", encoding="utf-8") as f:
+                    json.dump(export_data, f, indent=2, ensure_ascii=False)
+                return True
+            except Exception:
+                return False
+        else:
+            # Legacy: return dictionary if no filepath provided
+            return export_data
 
     def import_all_profiles(self, data: dict, replace: bool = False) -> int:
         """Import multiple profiles. Returns count of imported profiles."""

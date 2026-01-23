@@ -42,6 +42,7 @@ class IconExtractor:
             PIL Image of the icon, or None if extraction fails
         """
         if not os.path.exists(path):
+            print(f"Icon extraction: Path does not exist: {path}")
             return None
 
         try:
@@ -69,10 +70,14 @@ class IconExtractor:
                 # Destroy the icon handle
                 ctypes.windll.user32.DestroyIcon(shinfo.hIcon)
 
-                return icon_image
+                if icon_image and icon_image.size[0] > 0:
+                    print(f"Icon extracted successfully from: {os.path.basename(path)}")
+                    return icon_image
+                else:
+                    print(f"Icon extraction failed (invalid image): {os.path.basename(path)}")
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Icon extraction error for {os.path.basename(path)}: {e}")
 
         return None
 

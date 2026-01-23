@@ -70,8 +70,8 @@ class AddAppDialog(ctk.CTkToplevel):
         ctk.CTkButton(
             path_frame,
             text="🔍  Search...",
-            width=110,
-            font=ctk.CTkFont(family="Roboto", size=13),
+            width=120,
+            font=ctk.CTkFont(family="Roboto", size=14),
             fg_color="#2fa572",
             hover_color="#28a164",
             command=self._search_installed_apps
@@ -138,8 +138,10 @@ class AddAppDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                self.iconbitmap(icon_path)
-        except Exception as e:
+                # Use absolute path for better compatibility
+                icon_path = os.path.abspath(icon_path)
+                self.after(10, lambda: self.iconbitmap(default=icon_path))
+        except Exception:
             pass
 
     def _browse_file(self):
@@ -231,6 +233,9 @@ class EditAppDialog(ctk.CTkToplevel):
         self.geometry("500x300")
         self.resizable(False, False)
 
+        # Set icon
+        self._set_icon()
+
         # Make modal
         self.transient(parent)
         self.grab_set()
@@ -310,6 +315,26 @@ class EditAppDialog(ctk.CTkToplevel):
             width=100,
             command=self._on_save_click
         ).pack(side="right")
+
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            import sys
+            # Handle both running from source and from .exe
+            if getattr(sys, 'frozen', False):
+                # Running from .exe
+                base_dir = sys._MEIPASS
+            else:
+                # Running from source
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                # Use absolute path for better compatibility
+                icon_path = os.path.abspath(icon_path)
+                self.after(10, lambda: self.iconbitmap(default=icon_path))
+        except Exception:
+            pass
 
     def _on_save_click(self):
         """Handle Save button click."""
@@ -428,8 +453,10 @@ class AddProfileDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                self.iconbitmap(icon_path)
-        except Exception as e:
+                # Use absolute path for better compatibility
+                icon_path = os.path.abspath(icon_path)
+                self.after(10, lambda: self.iconbitmap(default=icon_path))
+        except Exception:
             pass
 
     def _on_create_click(self):
@@ -542,8 +569,10 @@ class ConfirmDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                self.iconbitmap(icon_path)
-        except Exception as e:
+                # Use absolute path for better compatibility
+                icon_path = os.path.abspath(icon_path)
+                self.after(10, lambda: self.iconbitmap(default=icon_path))
+        except Exception:
             pass
 
     def _on_confirm_click(self):
@@ -568,6 +597,8 @@ class OptionsDialog(ctk.CTkToplevel):
 
         self.config = config
         self.on_theme_change = on_theme_change
+        self.initial_theme = config.get_theme()
+        self.selected_theme = self.initial_theme
 
         # Window setup
         self.title("Options")
@@ -588,6 +619,9 @@ class OptionsDialog(ctk.CTkToplevel):
         self.geometry(f"+{x}+{y}")
 
         self._create_widgets()
+
+        # Bind close event (X button) to cancel
+        self.protocol("WM_DELETE_WINDOW", self._on_cancel)
 
     def _create_widgets(self):
         """Create dialog widgets."""
@@ -707,16 +741,28 @@ class OptionsDialog(ctk.CTkToplevel):
             command=self._on_confirm_exit_toggle
         ).pack(side="left")
 
-        # Close button
+        # Buttons
         button_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
-        button_frame.pack(fill="x")
+        button_frame.pack(fill="x", pady=(10, 0))
 
+        # Save button
+        ctk.CTkButton(
+            button_frame,
+            text="Save",
+            width=100,
+            height=32,
+            fg_color="#2fa572",
+            hover_color="#28a164",
+            command=self._on_save
+        ).pack(side="right", padx=(10, 0))
+
+        # Close button
         ctk.CTkButton(
             button_frame,
             text="Close",
             width=100,
             height=32,
-            command=self.destroy
+            command=self._on_cancel
         ).pack(side="right")
 
     def _set_icon(self):
@@ -733,15 +779,15 @@ class OptionsDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                self.iconbitmap(icon_path)
-        except Exception as e:
+                # Use absolute path for better compatibility
+                icon_path = os.path.abspath(icon_path)
+                self.after(10, lambda: self.iconbitmap(default=icon_path))
+        except Exception:
             pass
 
     def _on_theme_select(self, value: str):
-        """Handle theme selection."""
-        theme = value.lower()
-        self.config.set_theme(theme)
-        self.on_theme_change(theme)
+        """Handle theme selection - stores selection, applies on Save."""
+        self.selected_theme = value.lower()
 
     def _on_icons_toggle(self):
         """Handle show icons toggle."""
@@ -799,6 +845,24 @@ class OptionsDialog(ctk.CTkToplevel):
         ctk.CTkLabel(error_dialog, text=message, wraplength=300).pack(pady=20, padx=20)
         ctk.CTkButton(error_dialog, text="OK", width=80, command=error_dialog.destroy).pack()
 
+    def _on_save(self):
+        """Handle Save button - apply all settings and close."""
+        # Save theme
+        self.config.set_theme(self.selected_theme)
+
+        # Apply theme change after dialog closes
+        if self.selected_theme != self.initial_theme:
+            self.after(100, lambda: self.on_theme_change(self.selected_theme))
+
+        # Close dialog
+        self.destroy()
+
+    def _on_cancel(self):
+        """Handle Close/Cancel button - close without applying theme."""
+        # Revert theme to initial
+        self.config.set_theme(self.initial_theme)
+        self.destroy()
+
 
 class AboutDialog(ctk.CTkToplevel):
     """About/App Info dialog."""
@@ -819,8 +883,11 @@ class AboutDialog(ctk.CTkToplevel):
 
         # Window setup
         self.title("About FavApp Starter")
-        self.geometry("400x300")
+        self.geometry("500x550")
         self.resizable(False, False)
+
+        # Set icon
+        self._set_icon()
 
         # Make modal
         self.transient(parent)
@@ -828,8 +895,8 @@ class AboutDialog(ctk.CTkToplevel):
 
         # Center on parent
         self.update_idletasks()
-        x = parent.winfo_x() + (parent.winfo_width() - 400) // 2
-        y = parent.winfo_y() + (parent.winfo_height() - 300) // 2
+        x = parent.winfo_x() + (parent.winfo_width() - 500) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - 550) // 2
         self.geometry(f"+{x}+{y}")
 
         self._create_widgets()
@@ -853,7 +920,7 @@ class AboutDialog(ctk.CTkToplevel):
             text=f"Version {self.version}",
             font=ctk.CTkFont(family="Roboto", size=14),
             text_color="gray"
-        ).pack(pady=(0, 20))
+        ).pack(pady=(0, 10))
 
         # Description
         ctk.CTkLabel(
@@ -861,7 +928,7 @@ class AboutDialog(ctk.CTkToplevel):
             text="Launch your favorite applications\nwith a single click.",
             font=ctk.CTkFont(family="Roboto", size=13),
             justify="center"
-        ).pack(pady=(0, 20))
+        ).pack(pady=(0, 10))
 
         # Author
         ctk.CTkLabel(
@@ -869,10 +936,43 @@ class AboutDialog(ctk.CTkToplevel):
             text=f"Created by {self.author}",
             font=ctk.CTkFont(family="Roboto", size=12),
             text_color="gray"
+        ).pack(pady=(0, 15))
+
+        # License section
+        ctk.CTkLabel(
+            main_frame,
+            text="License",
+            font=ctk.CTkFont(family="Roboto", size=14, weight="bold")
         ).pack(pady=(0, 10))
 
-        # Spacer
-        ctk.CTkFrame(main_frame, fg_color="transparent").pack(fill="both", expand=True)
+        # License textbox
+        license_text = f"""GNU General Public License v3.0
+
+Copyright (C) 2025 {self.author}
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>."""
+
+        textbox = ctk.CTkTextbox(
+            main_frame,
+            width=450,
+            height=240,
+            font=ctk.CTkFont(family="Consolas", size=10),
+            wrap="word"
+        )
+        textbox.pack(fill="both", expand=True, pady=(0, 15))
+        textbox.insert("1.0", license_text)
+        textbox.configure(state="disabled")
 
         # Close button
         ctk.CTkButton(
@@ -881,7 +981,23 @@ class AboutDialog(ctk.CTkToplevel):
             width=100,
             height=32,
             command=self.destroy
-        ).pack(pady=(10, 0))
+        ).pack()
+
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            import sys
+            if getattr(sys, 'frozen', False):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                # Use absolute path for better compatibility
+                icon_path = os.path.abspath(icon_path)
+                self.after(10, lambda: self.iconbitmap(default=icon_path))
+        except:
+            pass
 
 
 class LicenseDialog(ctk.CTkToplevel):
@@ -930,6 +1046,9 @@ SOFTWARE."""
         self.transient(parent)
         self.grab_set()
 
+        # Set icon
+        self._set_icon()
+
         # Center on parent
         self.update_idletasks()
         x = parent.winfo_x() + (parent.winfo_width() - 550) // 2
@@ -973,6 +1092,20 @@ SOFTWARE."""
             height=32,
             command=self.destroy
         ).pack(pady=(15, 0))
+
+    def _set_icon(self):
+        """Set the window icon."""
+        try:
+            import sys
+            if getattr(sys, 'frozen', False):
+                base_dir = sys._MEIPASS
+            else:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            icon_path = os.path.join(base_dir, "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except:
+            pass
 
 
 class SearchAppsDialog(ctk.CTkToplevel):
@@ -1041,7 +1174,12 @@ class SearchAppsDialog(ctk.CTkToplevel):
         search_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
         search_frame.pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(search_frame, text="🔍", width=30).pack(side="left")
+        ctk.CTkLabel(
+            search_frame,
+            text="🔍",
+            width=30,
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=18)
+        ).pack(side="left")
 
         self.search_var = ctk.StringVar()
         self.search_var.trace("w", lambda *args: self._filter_apps())
@@ -1083,8 +1221,10 @@ class SearchAppsDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                self.iconbitmap(icon_path)
-        except Exception as e:
+                # Use absolute path for better compatibility
+                icon_path = os.path.abspath(icon_path)
+                self.after(10, lambda: self.iconbitmap(default=icon_path))
+        except Exception:
             pass
 
     def _load_apps(self):
