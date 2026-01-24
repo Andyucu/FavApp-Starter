@@ -5,6 +5,18 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.21] - 2026-01-24
+
+### Fixed
+
+- **CRITICAL**: App icon extraction now works correctly
+  - Fixed path format issue - paths were using forward slashes (C:/...) instead of Windows backslashes (C:\...)
+  - Added os.path.normpath() to normalize paths before calling SHGetFileInfoW API
+  - Debug log revealed all icon extraction attempts were failing with result: 0 due to path format
+  - App icons should now display correctly for all applications
+
+---
+
 ## [26.01.20] - 2026-01-24
 
 ### Added

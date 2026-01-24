@@ -46,6 +46,10 @@ class IconExtractor:
         log(f"Full path: {path}")
         log(f"Requested size: {size}")
 
+        # Normalize path to Windows format (backslashes)
+        path = os.path.normpath(path)
+        log(f"Normalized path: {path}")
+
         if not os.path.exists(path):
             log(f"✗ Path does not exist: {path}")
             return None
