@@ -5,6 +5,18 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.24] - 2026-01-24
+
+### Changed
+
+- **Search button styling** - Add Application dialog Search button now matches Browse button size
+  - Width changed from 120 to 85 pixels
+  - Font size changed from 16 to 13
+  - Maintains green background color for better visibility
+  - Improved UI consistency between similar buttons
+
+---
+
 ## [26.01.23] - 2026-01-24
 
 ### Fixed

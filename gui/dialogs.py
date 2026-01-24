@@ -70,8 +70,8 @@ class AddAppDialog(ctk.CTkToplevel):
         ctk.CTkButton(
             path_frame,
             text="🔍  Search...",
-            width=120,
-            font=ctk.CTkFont(family="Roboto", size=16),
+            width=85,
+            font=ctk.CTkFont(family="Roboto", size=13),
             fg_color="#2fa572",
             hover_color="#28a164",
             command=self._search_installed_apps
