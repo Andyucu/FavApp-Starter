@@ -25,7 +25,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.24"
+    APP_VERSION = "26.01.25"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -549,6 +549,7 @@ class MainWindow(ctk.CTk):
             self.config.set_active_profile(name)
             self._refresh_profile_list()
             self._refresh_app_list()
+            self._refresh_tray_menu()
 
     def _save_profile(self):
         """Manually save the current profile configuration."""
@@ -580,6 +581,7 @@ class MainWindow(ctk.CTk):
         if self.config.delete_profile(self.config.get_active_profile()):
             self._refresh_profile_list()
             self._refresh_app_list()
+            self._refresh_tray_menu()
 
     def _show_add_app_dialog(self):
         """Show dialog to add a new app."""
@@ -861,6 +863,7 @@ class MainWindow(ctk.CTk):
             self.config.set_active_profile(new_name)
             self._refresh_profile_list()
             self._refresh_app_list()
+            self._refresh_tray_menu()
             self.status_label.configure(text=f"Duplicated profile: {new_name}")
 
     def _rename_profile(self):
@@ -879,6 +882,7 @@ class MainWindow(ctk.CTk):
                 self._show_message("Error", "A profile with this name already exists.")
             elif self.config.rename_profile(current, new_name):
                 self._refresh_profile_list()
+                self._refresh_tray_menu()
                 self.status_label.configure(text=f"Renamed profile to: {new_name}")
 
     def _export_profile(self):
@@ -1080,6 +1084,22 @@ class MainWindow(ctk.CTk):
             print(f"ERROR in tray icon run(): {type(e).__name__}: {e}")
             import traceback
             traceback.print_exc()
+
+    def _refresh_tray_menu(self):
+        """Refresh the tray icon menu with updated profiles."""
+        if not PYSTRAY_AVAILABLE or not self.tray_icon:
+            return
+
+        try:
+            # Stop the existing tray icon
+            if self.tray_icon.visible:
+                self.tray_icon.stop()
+                self.tray_icon = None
+
+            # Recreate with updated profiles
+            self.after(100, self._create_tray_icon)
+        except Exception as e:
+            print(f"Error refreshing tray menu: {e}")
 
     def _show_from_tray(self):
         """Show window from system tray."""

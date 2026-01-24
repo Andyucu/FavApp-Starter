@@ -69,7 +69,7 @@ class AddAppDialog(ctk.CTkToplevel):
 
         ctk.CTkButton(
             path_frame,
-            text="🔍  Search...",
+            text="Search...",
             width=85,
             font=ctk.CTkFont(family="Roboto", size=13),
             fg_color="#2fa572",

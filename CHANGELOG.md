@@ -5,6 +5,24 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.25] - 2026-01-24
+
+### Changed
+
+- **Search button** - Removed search icon (🔍) from Search button in Add Application dialog
+  - Button now displays just "Search..." text for cleaner appearance
+  - Maintains green background color
+
+### Fixed
+
+- **Tray icon menu** - Profile menu now updates automatically when profiles are added, deleted, duplicated, or renamed
+  - New profiles immediately appear in the tray icon menu
+  - Deleted profiles are removed from the tray icon menu
+  - Profile names update correctly when renamed
+  - Tray menu refreshes automatically after any profile modification
+
+---
+
 ## [26.01.24] - 2026-01-24
 
 ### Changed
