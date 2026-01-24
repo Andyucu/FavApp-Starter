@@ -97,6 +97,7 @@ class IconExtractor:
 
             icon_info = ICONINFO()
             if not ctypes.windll.user32.GetIconInfo(hicon, ctypes.byref(icon_info)):
+                print("GetIconInfo failed")
                 return None
 
             # Get bitmap info
@@ -113,12 +114,17 @@ class IconExtractor:
 
             bmp = BITMAP()
             if icon_info.hbmColor:
-                ctypes.windll.gdi32.GetObjectW(
+                result = ctypes.windll.gdi32.GetObjectW(
                     icon_info.hbmColor, ctypes.sizeof(BITMAP), ctypes.byref(bmp)
                 )
 
+                if result == 0:
+                    print("GetObjectW failed")
+                    return None
+
                 width = bmp.bmWidth
                 height = bmp.bmHeight
+                print(f"Icon bitmap size: {width}x{height}")
 
                 # Create device context
                 hdc = ctypes.windll.user32.GetDC(0)
@@ -152,10 +158,21 @@ class IconExtractor:
                 buffer_size = width * height * 4
                 buffer = ctypes.create_string_buffer(buffer_size)
 
-                ctypes.windll.gdi32.GetDIBits(
+                lines = ctypes.windll.gdi32.GetDIBits(
                     hdc_mem, icon_info.hbmColor, 0, height,
                     buffer, ctypes.byref(bmi), 0
                 )
+
+                if lines == 0:
+                    print("GetDIBits failed")
+                    # Cleanup before returning
+                    ctypes.windll.gdi32.DeleteDC(hdc_mem)
+                    ctypes.windll.user32.ReleaseDC(0, hdc)
+                    if icon_info.hbmColor:
+                        ctypes.windll.gdi32.DeleteObject(icon_info.hbmColor)
+                    if icon_info.hbmMask:
+                        ctypes.windll.gdi32.DeleteObject(icon_info.hbmMask)
+                    return None
 
                 # Create image from buffer
                 img = Image.frombuffer('RGBA', (width, height), buffer, 'raw', 'BGRA', 0, 1)
@@ -173,10 +190,15 @@ class IconExtractor:
                 if img.size != (size, size):
                     img = img.resize((size, size), Image.Resampling.LANCZOS)
 
+                print(f"Icon successfully converted to image: {img.size}")
                 return img
+            else:
+                print("No hbmColor in icon")
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Exception in _hicon_to_image: {e}")
+            import traceback
+            traceback.print_exc()
 
         return None
 

@@ -5,6 +5,35 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.19] - 2026-01-24
+
+### Fixed
+
+- **CRITICAL**: Theme changes now apply immediately without requiring app restart
+  - Save button now applies theme on parent window after closing dialog
+  - Fixed modal dialog blocking issue by scheduling theme change on parent after dialog destroyed
+  - Theme is correctly applied to main window while dialog is being destroyed
+- **CRITICAL**: All dialog window icons now display correctly (About, Options, Add App, etc.)
+  - Removed unnecessary delays and simplified icon setting
+  - Direct iconbitmap() call without default parameter
+  - Fixed icon display in all 6 dialogs
+
+### Changed
+
+- Search icon significantly enlarged in Add App dialog (font size 14 → 16)
+- Search icon significantly enlarged in Search Apps dialog (emoji size 18 → 22)
+- README icon resized from 51x51 to 56x56 pixels (10% larger)
+- Enhanced icon extraction debugging with comprehensive logging throughout pipeline
+- Improved fallback icon rendering with larger, more visible font (32pt Arial)
+
+### Documentation
+
+- Updated README.md with GPLv3 license information
+- Added .msc and .msi to supported file types documentation
+- Consolidated license information - now shown in About dialog only
+
+---
+
 ## [26.01.18] - 2026-01-23
 
 ### Added

@@ -71,7 +71,7 @@ class AddAppDialog(ctk.CTkToplevel):
             path_frame,
             text="🔍  Search...",
             width=120,
-            font=ctk.CTkFont(family="Roboto", size=14),
+            font=ctk.CTkFont(family="Roboto", size=16),
             fg_color="#2fa572",
             hover_color="#28a164",
             command=self._search_installed_apps
@@ -138,11 +138,10 @@ class AddAppDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                # Use absolute path for better compatibility
-                icon_path = os.path.abspath(icon_path)
-                self.after(10, lambda: self.iconbitmap(default=icon_path))
-        except Exception:
-            pass
+                # Set icon immediately - no delay needed
+                self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Failed to set dialog icon: {e}")
 
     def _browse_file(self):
         """Open file browser to select an application."""
@@ -330,11 +329,10 @@ class EditAppDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                # Use absolute path for better compatibility
-                icon_path = os.path.abspath(icon_path)
-                self.after(10, lambda: self.iconbitmap(default=icon_path))
-        except Exception:
-            pass
+                # Set icon immediately - no delay needed
+                self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Failed to set dialog icon: {e}")
 
     def _on_save_click(self):
         """Handle Save button click."""
@@ -453,11 +451,10 @@ class AddProfileDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                # Use absolute path for better compatibility
-                icon_path = os.path.abspath(icon_path)
-                self.after(10, lambda: self.iconbitmap(default=icon_path))
-        except Exception:
-            pass
+                # Set icon immediately - no delay needed
+                self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Failed to set dialog icon: {e}")
 
     def _on_create_click(self):
         """Handle Create button click."""
@@ -569,11 +566,10 @@ class ConfirmDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                # Use absolute path for better compatibility
-                icon_path = os.path.abspath(icon_path)
-                self.after(10, lambda: self.iconbitmap(default=icon_path))
-        except Exception:
-            pass
+                # Set icon immediately - no delay needed
+                self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Failed to set dialog icon: {e}")
 
     def _on_confirm_click(self):
         """Handle confirm button click."""
@@ -779,11 +775,10 @@ class OptionsDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                # Use absolute path for better compatibility
-                icon_path = os.path.abspath(icon_path)
-                self.after(10, lambda: self.iconbitmap(default=icon_path))
-        except Exception:
-            pass
+                # Set icon immediately - no delay needed
+                self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Failed to set dialog icon: {e}")
 
     def _on_theme_select(self, value: str):
         """Handle theme selection - stores selection, applies on Save."""
@@ -850,12 +845,16 @@ class OptionsDialog(ctk.CTkToplevel):
         # Save theme
         self.config.set_theme(self.selected_theme)
 
-        # Apply theme change after dialog closes
+        # Schedule theme change on parent window BEFORE closing dialog
         if self.selected_theme != self.initial_theme:
-            self.after(100, lambda: self.on_theme_change(self.selected_theme))
-
-        # Close dialog
-        self.destroy()
+            parent = self.master
+            theme = self.selected_theme
+            # Close dialog first, then apply theme
+            self.destroy()
+            parent.after(10, lambda: self.on_theme_change(theme))
+        else:
+            # No theme change, just close
+            self.destroy()
 
     def _on_cancel(self):
         """Handle Close/Cancel button - close without applying theme."""
@@ -1178,7 +1177,7 @@ class SearchAppsDialog(ctk.CTkToplevel):
             search_frame,
             text="🔍",
             width=30,
-            font=ctk.CTkFont(family="Segoe UI Emoji", size=18)
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=22)
         ).pack(side="left")
 
         self.search_var = ctk.StringVar()
@@ -1221,11 +1220,10 @@ class SearchAppsDialog(ctk.CTkToplevel):
 
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                # Use absolute path for better compatibility
-                icon_path = os.path.abspath(icon_path)
-                self.after(10, lambda: self.iconbitmap(default=icon_path))
-        except Exception:
-            pass
+                # Set icon immediately - no delay needed
+                self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Failed to set dialog icon: {e}")
 
     def _load_apps(self):
         """Load installed applications in background."""

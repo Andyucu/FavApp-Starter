@@ -112,8 +112,7 @@ Access settings via **File > Options**:
 
 ### About & License
 
-- **About**: View app information via **About > App Info**
-- **License**: View the MIT license via **About > License**
+- **About**: View app information and GPLv3 license via **About > App Info**
 
 ### Keyboard Shortcuts
 
@@ -150,6 +149,8 @@ Settings are stored in `config.json` in the application directory:
 - `.bat` - Batch files
 - `.cmd` - Command files
 - `.lnk` - Windows shortcuts
+- `.msc` - Microsoft Management Console snap-ins
+- `.msi` - Windows Installer packages
 
 ## System Requirements
 
@@ -180,7 +181,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 (GPLv3) - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 
