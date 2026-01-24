@@ -8,6 +8,7 @@ from PIL import Image
 import ctypes
 from ctypes import wintypes
 import io
+from .debug_logger import log
 
 
 class IconExtractor:
@@ -41,8 +42,12 @@ class IconExtractor:
         Returns:
             PIL Image of the icon, or None if extraction fails
         """
+        log(f"=== App Icon Extraction: {os.path.basename(path)} ===")
+        log(f"Full path: {path}")
+        log(f"Requested size: {size}")
+
         if not os.path.exists(path):
-            print(f"Icon extraction: Path does not exist: {path}")
+            log(f"✗ Path does not exist: {path}")
             return None
 
         try:
@@ -55,15 +60,19 @@ class IconExtractor:
 
             if size <= 16:
                 flags |= IconExtractor.SHGFI_SMALLICON
+                log("Using SMALLICON flag")
             else:
                 flags |= IconExtractor.SHGFI_LARGEICON
+                log("Using LARGEICON flag")
 
+            log("Calling SHGetFileInfoW...")
             result = shell32.SHGetFileInfoW(
                 path, 0, ctypes.byref(shinfo),
                 ctypes.sizeof(shinfo), flags
             )
 
             if result and shinfo.hIcon:
+                log(f"✓ SHGetFileInfoW succeeded, hIcon: {shinfo.hIcon}")
                 # Convert HICON to PIL Image
                 icon_image = IconExtractor._hicon_to_image(shinfo.hIcon, size)
 
@@ -71,14 +80,20 @@ class IconExtractor:
                 ctypes.windll.user32.DestroyIcon(shinfo.hIcon)
 
                 if icon_image and icon_image.size[0] > 0:
-                    print(f"Icon extracted successfully from: {os.path.basename(path)}")
+                    log(f"✓ Icon extracted successfully from: {os.path.basename(path)}")
+                    log("=== End App Icon Extraction (Success) ===\n")
                     return icon_image
                 else:
-                    print(f"Icon extraction failed (invalid image): {os.path.basename(path)}")
+                    log(f"✗ Icon extraction failed (invalid image): {os.path.basename(path)}")
+            else:
+                log(f"✗ SHGetFileInfoW failed, result: {result}, hIcon: {shinfo.hIcon if result else 'N/A'}")
 
         except Exception as e:
-            print(f"Icon extraction error for {os.path.basename(path)}: {e}")
+            log(f"✗ Icon extraction error for {os.path.basename(path)}: {e}")
+            import traceback
+            log(traceback.format_exc())
 
+        log("=== End App Icon Extraction (Failed) ===\n")
         return None
 
     @staticmethod
@@ -97,7 +112,7 @@ class IconExtractor:
 
             icon_info = ICONINFO()
             if not ctypes.windll.user32.GetIconInfo(hicon, ctypes.byref(icon_info)):
-                print("GetIconInfo failed")
+                log("✗ GetIconInfo failed")
                 return None
 
             # Get bitmap info
@@ -119,12 +134,12 @@ class IconExtractor:
                 )
 
                 if result == 0:
-                    print("GetObjectW failed")
+                    log("✗ GetObjectW failed")
                     return None
 
                 width = bmp.bmWidth
                 height = bmp.bmHeight
-                print(f"Icon bitmap size: {width}x{height}")
+                log(f"Icon bitmap size: {width}x{height}")
 
                 # Create device context
                 hdc = ctypes.windll.user32.GetDC(0)
@@ -164,7 +179,7 @@ class IconExtractor:
                 )
 
                 if lines == 0:
-                    print("GetDIBits failed")
+                    log("✗ GetDIBits failed")
                     # Cleanup before returning
                     ctypes.windll.gdi32.DeleteDC(hdc_mem)
                     ctypes.windll.user32.ReleaseDC(0, hdc)
@@ -190,15 +205,15 @@ class IconExtractor:
                 if img.size != (size, size):
                     img = img.resize((size, size), Image.Resampling.LANCZOS)
 
-                print(f"Icon successfully converted to image: {img.size}")
+                log(f"✓ Icon successfully converted to image: {img.size}")
                 return img
             else:
-                print("No hbmColor in icon")
+                log("✗ No hbmColor in icon")
 
         except Exception as e:
-            print(f"Exception in _hicon_to_image: {e}")
+            log(f"✗ Exception in _hicon_to_image: {e}")
             import traceback
-            traceback.print_exc()
+            log(traceback.format_exc())
 
         return None
 

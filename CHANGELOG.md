@@ -5,6 +5,25 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.20] - 2026-01-24
+
+### Added
+
+- **Debug logging system** - Comprehensive logging to debug.log file
+  - Log file created in application directory (next to .exe or in project root)
+  - All icon extraction attempts logged with detailed diagnostic information
+  - FavApp Starter icon loading process fully logged
+  - App icon extraction pipeline logged at every step
+  - Helps diagnose icon display issues with complete trace information
+
+### Changed
+
+- Search icon in main window enlarged 2x (emoji font size 24)
+- All print statements replaced with debug logger throughout icon extraction code
+- Better visibility for search functionality in main window
+
+---
+
 ## [26.01.19] - 2026-01-24
 
 ### Fixed

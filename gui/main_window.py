@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 
 from core.config import ConfigManager
 from core.launcher import AppLauncher, IconExtractor
+from core.debug_logger import log
 from .dialogs import AddAppDialog, EditAppDialog, AddProfileDialog, ConfirmDialog, OptionsDialog, AboutDialog
 
 # Optional pystray import for system tray
@@ -24,7 +25,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.19"
+    APP_VERSION = "26.01.20"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -99,26 +100,38 @@ class MainWindow(ctk.CTk):
     def _set_icon(self):
         """Set the application icon."""
         import sys
+        log("=== FavApp Starter Icon Loading ===")
+
         # Handle both running from source and from .exe
         if getattr(sys, 'frozen', False):
             # Running from .exe
             base_dir = sys._MEIPASS
+            log(f"Running from .exe, base_dir: {base_dir}")
         else:
             # Running from source
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            log(f"Running from source, base_dir: {base_dir}")
 
         icon_paths = [
             os.path.join(base_dir, "assets", "icon.ico"),
             os.path.join(base_dir, "icon.ico"),
         ]
 
+        log(f"Attempting to load icon from paths:")
+        for path in icon_paths:
+            log(f"  - {path} (exists: {os.path.exists(path)})")
+
         for icon_path in icon_paths:
             if os.path.exists(icon_path):
                 try:
+                    log(f"Setting icon from: {icon_path}")
                     self.iconbitmap(icon_path)
+                    log(f"✓ Icon set successfully from: {icon_path}")
                     break
-                except Exception:
-                    pass
+                except Exception as e:
+                    log(f"✗ Failed to set icon from {icon_path}: {e}")
+
+        log("=== End FavApp Starter Icon Loading ===\n")
 
     def _create_menu(self):
         """Create the application menu bar."""
@@ -189,7 +202,12 @@ class MainWindow(ctk.CTk):
         search_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         search_frame.pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(search_frame, text="🔍", width=30).pack(side="left", padx=(0, 5))
+        ctk.CTkLabel(
+            search_frame,
+            text="🔍",
+            width=30,
+            font=ctk.CTkFont(family="Segoe UI Emoji", size=24)
+        ).pack(side="left", padx=(0, 5))
 
         self.search_var = ctk.StringVar()
         self.search_var.trace("w", lambda *args: self._on_search_change())
@@ -661,34 +679,34 @@ class MainWindow(ctk.CTk):
                         shell = win32com.client.Dispatch("WScript.Shell")
                         shortcut = shell.CreateShortCut(path)
                         target_path = shortcut.Targetpath
-                        print(f"Resolved .lnk: {path} -> {target_path}")
+                        log(f"Resolved .lnk: {path} -> {target_path}")
                         if not target_path or not os.path.exists(target_path):
-                            print(f"Target path invalid, using original: {path}")
+                            log(f"Target path invalid, using original: {path}")
                             target_path = path
                     except Exception as e:
-                        print(f"Failed to resolve .lnk: {e}")
+                        log(f"Failed to resolve .lnk: {e}")
                         target_path = path
 
                 # Extract icon from target
-                print(f"Attempting icon extraction from: {target_path}")
+                log(f"Attempting icon extraction from: {target_path}")
                 pil_image = IconExtractor.get_icon(target_path, size=48)
 
                 # Verify the image is valid
                 if pil_image and pil_image.size[0] > 0 and pil_image.size[1] > 0:
-                    print(f"✓ Icon successfully extracted and validated")
+                    log(f"✓ Icon successfully extracted and validated")
                 else:
-                    print(f"✗ Icon extraction returned invalid image")
+                    log(f"✗ Icon extraction returned invalid image")
                     pil_image = None
 
             except Exception as e:
-                print(f"Exception during icon extraction: {e}")
+                log(f"Exception during icon extraction: {e}")
                 import traceback
-                traceback.print_exc()
+                log(traceback.format_exc())
                 pil_image = None
 
             # If extraction failed, create a fallback icon
             if not pil_image:
-                print(f"Creating fallback icon for: {os.path.basename(path)}")
+                log(f"Creating fallback icon for: {os.path.basename(path)}")
                 pil_image = Image.new('RGBA', (48, 48), (100, 149, 237, 255))
                 from PIL import ImageDraw, ImageFont
                 draw = ImageDraw.Draw(pil_image)
@@ -702,7 +720,7 @@ class MainWindow(ctk.CTk):
                         font = ImageFont.load_default()
                     draw.text((24, 24), letter, fill=(255, 255, 255, 255), font=font, anchor="mm")
                 except Exception as e:
-                    print(f"Error drawing fallback letter: {e}")
+                    log(f"Error drawing fallback letter: {e}")
 
             # Convert to CTkImage
             icon_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(40, 40))
