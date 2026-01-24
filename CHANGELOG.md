@@ -5,6 +5,17 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.23] - 2026-01-24
+
+### Fixed
+
+- **About dialog icon** - Fixed AboutDialog window icon not displaying correctly
+  - Removed delayed icon setting (.after) and default= parameter
+  - Now uses direct iconbitmap() call like other dialogs
+  - All dialog windows now display the correct FavApp icon in the title bar
+
+---
+
 ## [26.01.22] - 2026-01-24
 
 ### Fixed

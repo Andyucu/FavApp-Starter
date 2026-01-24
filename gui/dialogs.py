@@ -986,17 +986,20 @@ along with this program. If not, see <https://www.gnu.org/licenses/>."""
         """Set the window icon."""
         try:
             import sys
+            # Handle both running from source and from .exe
             if getattr(sys, 'frozen', False):
+                # Running from .exe
                 base_dir = sys._MEIPASS
             else:
+                # Running from source
                 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
             icon_path = os.path.join(base_dir, "assets", "icon.ico")
             if os.path.exists(icon_path):
-                # Use absolute path for better compatibility
-                icon_path = os.path.abspath(icon_path)
-                self.after(10, lambda: self.iconbitmap(default=icon_path))
-        except:
-            pass
+                # Set icon immediately - no delay needed
+                self.iconbitmap(icon_path)
+        except Exception as e:
+            print(f"Failed to set dialog icon: {e}")
 
 
 class LicenseDialog(ctk.CTkToplevel):
