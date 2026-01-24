@@ -5,6 +5,19 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.22] - 2026-01-24
+
+### Fixed
+
+- **CRITICAL**: Fixed 64-bit handle overflow in icon extraction
+  - Icon extraction was failing with "int too long to convert" error on 64-bit Windows
+  - Added explicit ctypes argument type definitions for all Windows API functions
+  - GetIconInfo, GetObjectW, GetDC, CreateCompatibleDC, GetDIBits now properly handle 64-bit handles
+  - All cleanup functions (DeleteDC, ReleaseDC, DeleteObject) also updated for 64-bit compatibility
+  - Icons should now extract successfully on all Windows systems
+
+---
+
 ## [26.01.21] - 2026-01-24
 
 ### Fixed

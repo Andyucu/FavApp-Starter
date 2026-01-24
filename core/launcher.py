@@ -114,8 +114,13 @@ class IconExtractor:
                     ("hbmColor", wintypes.HBITMAP),
                 ]
 
+            # Define GetIconInfo argument types for 64-bit compatibility
+            GetIconInfo = ctypes.windll.user32.GetIconInfo
+            GetIconInfo.argtypes = [ctypes.c_void_p, ctypes.POINTER(ICONINFO)]
+            GetIconInfo.restype = wintypes.BOOL
+
             icon_info = ICONINFO()
-            if not ctypes.windll.user32.GetIconInfo(hicon, ctypes.byref(icon_info)):
+            if not GetIconInfo(hicon, ctypes.byref(icon_info)):
                 log("✗ GetIconInfo failed")
                 return None
 
@@ -131,9 +136,14 @@ class IconExtractor:
                     ("bmBits", ctypes.c_void_p),
                 ]
 
+            # Define GetObjectW argument types for 64-bit compatibility
+            GetObjectW = ctypes.windll.gdi32.GetObjectW
+            GetObjectW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+            GetObjectW.restype = ctypes.c_int
+
             bmp = BITMAP()
             if icon_info.hbmColor:
-                result = ctypes.windll.gdi32.GetObjectW(
+                result = GetObjectW(
                     icon_info.hbmColor, ctypes.sizeof(BITMAP), ctypes.byref(bmp)
                 )
 
@@ -146,8 +156,17 @@ class IconExtractor:
                 log(f"Icon bitmap size: {width}x{height}")
 
                 # Create device context
-                hdc = ctypes.windll.user32.GetDC(0)
-                hdc_mem = ctypes.windll.gdi32.CreateCompatibleDC(hdc)
+                # Define argument types for DC functions
+                GetDC = ctypes.windll.user32.GetDC
+                GetDC.argtypes = [ctypes.c_void_p]
+                GetDC.restype = ctypes.c_void_p
+
+                CreateCompatibleDC = ctypes.windll.gdi32.CreateCompatibleDC
+                CreateCompatibleDC.argtypes = [ctypes.c_void_p]
+                CreateCompatibleDC.restype = ctypes.c_void_p
+
+                hdc = GetDC(0)
+                hdc_mem = CreateCompatibleDC(hdc)
 
                 # Create bitmap info header
                 class BITMAPINFOHEADER(ctypes.Structure):
@@ -177,33 +196,52 @@ class IconExtractor:
                 buffer_size = width * height * 4
                 buffer = ctypes.create_string_buffer(buffer_size)
 
-                lines = ctypes.windll.gdi32.GetDIBits(
+                # Define GetDIBits argument types
+                GetDIBits = ctypes.windll.gdi32.GetDIBits
+                GetDIBits.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint,
+                                     ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint]
+                GetDIBits.restype = ctypes.c_int
+
+                lines = GetDIBits(
                     hdc_mem, icon_info.hbmColor, 0, height,
                     buffer, ctypes.byref(bmi), 0
                 )
 
+                # Define cleanup function types
+                DeleteDC = ctypes.windll.gdi32.DeleteDC
+                DeleteDC.argtypes = [ctypes.c_void_p]
+                DeleteDC.restype = wintypes.BOOL
+
+                ReleaseDC = ctypes.windll.user32.ReleaseDC
+                ReleaseDC.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+                ReleaseDC.restype = ctypes.c_int
+
+                DeleteObject = ctypes.windll.gdi32.DeleteObject
+                DeleteObject.argtypes = [ctypes.c_void_p]
+                DeleteObject.restype = wintypes.BOOL
+
                 if lines == 0:
                     log("✗ GetDIBits failed")
                     # Cleanup before returning
-                    ctypes.windll.gdi32.DeleteDC(hdc_mem)
-                    ctypes.windll.user32.ReleaseDC(0, hdc)
+                    DeleteDC(hdc_mem)
+                    ReleaseDC(0, hdc)
                     if icon_info.hbmColor:
-                        ctypes.windll.gdi32.DeleteObject(icon_info.hbmColor)
+                        DeleteObject(icon_info.hbmColor)
                     if icon_info.hbmMask:
-                        ctypes.windll.gdi32.DeleteObject(icon_info.hbmMask)
+                        DeleteObject(icon_info.hbmMask)
                     return None
 
                 # Create image from buffer
                 img = Image.frombuffer('RGBA', (width, height), buffer, 'raw', 'BGRA', 0, 1)
 
                 # Cleanup
-                ctypes.windll.gdi32.DeleteDC(hdc_mem)
-                ctypes.windll.user32.ReleaseDC(0, hdc)
+                DeleteDC(hdc_mem)
+                ReleaseDC(0, hdc)
 
                 if icon_info.hbmColor:
-                    ctypes.windll.gdi32.DeleteObject(icon_info.hbmColor)
+                    DeleteObject(icon_info.hbmColor)
                 if icon_info.hbmMask:
-                    ctypes.windll.gdi32.DeleteObject(icon_info.hbmMask)
+                    DeleteObject(icon_info.hbmMask)
 
                 # Resize if needed
                 if img.size != (size, size):
