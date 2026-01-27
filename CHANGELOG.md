@@ -5,6 +5,23 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.26] - 2026-01-24
+
+### Changed
+
+- **Font styling** - Made fonts bolder throughout the application for better readability
+  - Search button now uses bold font
+  - Status labels use bold font
+
+### Fixed
+
+- **Tray icon launch debugging** - Added comprehensive debug logging for tray icon profile launches
+  - Debug logs show which profile is being launched
+  - Logs display all apps being launched with full paths
+  - Launch thread progress logged for troubleshooting
+
+---
+
 ## [26.01.25] - 2026-01-24
 
 ### Changed

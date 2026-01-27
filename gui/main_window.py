@@ -25,7 +25,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.25"
+    APP_VERSION = "26.01.26"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):
@@ -367,7 +367,7 @@ class MainWindow(ctk.CTk):
         self.status_label = ctk.CTkLabel(
             status_frame,
             text="Ready",
-            font=ctk.CTkFont(family="Roboto", size=10),
+            font=ctk.CTkFont(family="Roboto", size=10, weight="bold"),
             text_color="gray",
             anchor="w"
         )
@@ -1108,30 +1108,42 @@ class MainWindow(ctk.CTk):
 
     def _launch_profile_from_tray(self, profile_name: str):
         """Launch all apps from a specific profile via tray icon."""
+        log(f"=== TRAY LAUNCH: {profile_name} ===")
         print(f"Launching profile from tray: {profile_name}")
 
         # Get apps from the profile
         apps = self.config.get_apps(profile_name)
+        log(f"Apps retrieved: {len(apps) if apps else 0}")
         if not apps:
+            log(f"No apps in profile: {profile_name}")
             print(f"No apps in profile: {profile_name}")
             return
 
+        log(f"Found {len(apps)} apps to launch")
         print(f"Found {len(apps)} apps to launch")
+        for app in apps:
+            log(f"  - {app.get('name', 'Unknown')}: {app.get('path', 'No path')}")
 
         # Get launch delay from config
         delay_ms = self.config.get_setting("launch_delay", 0)
+        log(f"Launch delay: {delay_ms}ms")
 
         # Launch apps in background thread
         def launch_thread():
+            log("Launch thread started")
             results = AppLauncher.launch_multiple(apps, delay_ms=delay_ms)
             errors = [r for r in results if not r["success"]]
 
             if errors:
+                log(f"Launch errors: {errors}")
                 print(f"Launch errors: {errors}")
             else:
+                log(f"Successfully launched all {len(apps)} apps from profile: {profile_name}")
                 print(f"Successfully launched all {len(apps)} apps from profile: {profile_name}")
+            log("=== END TRAY LAUNCH ===\n")
 
         # Run in thread to avoid blocking tray
+        log("Starting launch thread...")
         threading.Thread(target=launch_thread, daemon=True).start()
 
     def _exit_from_tray(self):
