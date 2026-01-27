@@ -25,7 +25,7 @@ except ImportError:
 class MainWindow(ctk.CTk):
     """Main application window."""
 
-    APP_VERSION = "26.01.26"
+    APP_VERSION = "26.01.27"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config_manager: Optional[ConfigManager] = None):

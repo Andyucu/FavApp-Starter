@@ -126,22 +126,8 @@ class AddAppDialog(ctk.CTkToplevel):
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            # Handle both running from source and from .exe
-            if getattr(sys, 'frozen', False):
-                # Running from .exe
-                base_dir = sys._MEIPASS
-            else:
-                # Running from source
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                # Set icon immediately - no delay needed
-                self.iconbitmap(icon_path)
-        except Exception as e:
-            print(f"Failed to set dialog icon: {e}")
+        # Icon removed - dialogs inherit from parent window
+        pass
 
     def _browse_file(self):
         """Open file browser to select an application."""
@@ -317,22 +303,8 @@ class EditAppDialog(ctk.CTkToplevel):
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            # Handle both running from source and from .exe
-            if getattr(sys, 'frozen', False):
-                # Running from .exe
-                base_dir = sys._MEIPASS
-            else:
-                # Running from source
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                # Set icon immediately - no delay needed
-                self.iconbitmap(icon_path)
-        except Exception as e:
-            print(f"Failed to set dialog icon: {e}")
+        # Icon removed - dialogs inherit from parent window
+        pass
 
     def _on_save_click(self):
         """Handle Save button click."""
@@ -439,22 +411,8 @@ class AddProfileDialog(ctk.CTkToplevel):
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            # Handle both running from source and from .exe
-            if getattr(sys, 'frozen', False):
-                # Running from .exe
-                base_dir = sys._MEIPASS
-            else:
-                # Running from source
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                # Set icon immediately - no delay needed
-                self.iconbitmap(icon_path)
-        except Exception as e:
-            print(f"Failed to set dialog icon: {e}")
+        # Icon removed - dialogs inherit from parent window
+        pass
 
     def _on_create_click(self):
         """Handle Create button click."""
@@ -554,22 +512,8 @@ class ConfirmDialog(ctk.CTkToplevel):
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            # Handle both running from source and from .exe
-            if getattr(sys, 'frozen', False):
-                # Running from .exe
-                base_dir = sys._MEIPASS
-            else:
-                # Running from source
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                # Set icon immediately - no delay needed
-                self.iconbitmap(icon_path)
-        except Exception as e:
-            print(f"Failed to set dialog icon: {e}")
+        # Icon removed - dialogs inherit from parent window
+        pass
 
     def _on_confirm_click(self):
         """Handle confirm button click."""
@@ -763,22 +707,8 @@ class OptionsDialog(ctk.CTkToplevel):
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            # Handle both running from source and from .exe
-            if getattr(sys, 'frozen', False):
-                # Running from .exe
-                base_dir = sys._MEIPASS
-            else:
-                # Running from source
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                # Set icon immediately - no delay needed
-                self.iconbitmap(icon_path)
-        except Exception as e:
-            print(f"Failed to set dialog icon: {e}")
+        # Icon removed - dialogs inherit from parent window
+        pass
 
     def _on_theme_select(self, value: str):
         """Handle theme selection - stores selection, applies on Save."""
@@ -984,22 +914,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>."""
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            # Handle both running from source and from .exe
-            if getattr(sys, 'frozen', False):
-                # Running from .exe
-                base_dir = sys._MEIPASS
-            else:
-                # Running from source
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                # Set icon immediately - no delay needed
-                self.iconbitmap(icon_path)
-        except Exception as e:
-            print(f"Failed to set dialog icon: {e}")
+        # Icon removed - dialogs inherit from parent window
+        pass
 
 
 class LicenseDialog(ctk.CTkToplevel):
@@ -1097,17 +1013,8 @@ SOFTWARE."""
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            if getattr(sys, 'frozen', False):
-                base_dir = sys._MEIPASS
-            else:
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                self.iconbitmap(icon_path)
-        except:
-            pass
+        # Icon removed - dialogs inherit from parent window
+        pass
 
 
 class SearchAppsDialog(ctk.CTkToplevel):
@@ -1211,22 +1118,8 @@ class SearchAppsDialog(ctk.CTkToplevel):
 
     def _set_icon(self):
         """Set the window icon."""
-        try:
-            import sys
-            # Handle both running from source and from .exe
-            if getattr(sys, 'frozen', False):
-                # Running from .exe
-                base_dir = sys._MEIPASS
-            else:
-                # Running from source
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-            icon_path = os.path.join(base_dir, "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                # Set icon immediately - no delay needed
-                self.iconbitmap(icon_path)
-        except Exception as e:
-            print(f"Failed to set dialog icon: {e}")
+        # Icon removed - dialogs inherit from parent window
+        pass
 
     def _load_apps(self):
         """Load installed applications in background."""

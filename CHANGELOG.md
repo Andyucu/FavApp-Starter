@@ -5,6 +5,20 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.01.27] - 2026-01-24
+
+### Changed
+
+- **Dialog icons removed** - Removed icons from all dialog and secondary windows
+  - Add App dialog no longer shows icon
+  - Options dialog no longer shows icon
+  - About dialog no longer shows icon
+  - Search Apps dialog no longer shows icon
+  - All other secondary windows no longer show icons
+  - Dialogs now inherit default behavior from parent window
+
+---
+
 ## [26.01.26] - 2026-01-24
 
 ### Changed
