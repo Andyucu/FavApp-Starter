@@ -1,15 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-PyInstaller spec file for FavApp Starter.
-Build command: pyinstaller FavApp.spec
+PyInstaller spec file for FavApp Starter (PyQt6 version).
+Build command: pyinstaller FavApp.spec --noconfirm
 """
 
 import os
 import sys
-
-# Get customtkinter path for bundling assets
-import customtkinter
-ctk_path = os.path.dirname(customtkinter.__file__)
 
 block_cipher = None
 
@@ -18,23 +14,27 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        # Include customtkinter assets (themes, etc.)
-        (ctk_path, 'customtkinter'),
         # Include app assets
         ('assets', 'assets'),
     ],
     hiddenimports=[
-        'customtkinter',
-        'darkdetect',
+        'PyQt6',
+        'PyQt6.QtCore',
+        'PyQt6.QtGui',
+        'PyQt6.QtWidgets',
         'PIL',
-        'PIL._tkinter_finder',
-        'pystray',
-        'pystray._win32',
+        'PIL.Image',
+        'PIL.ImageDraw',
+        'PIL.ImageFont',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        'customtkinter',
+        'tkinter',
+        'pystray',
+    ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,

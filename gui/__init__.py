@@ -1,23 +1,27 @@
-"""GUI module for FavApp Starter."""
+"""GUI module for FavApp Starter (PyQt6 implementation)."""
 
-from .main_window import MainWindow
-from .dialogs import (
-    AddAppDialog,
-    EditAppDialog,
-    AddProfileDialog,
+from .qt.main_window_qt import MainWindow
+from .qt.styles import StyleManager
+from .qt.dialogs_qt import (
     ConfirmDialog,
-    OptionsDialog,
+    AddProfileDialog,
     AboutDialog,
-    LicenseDialog
+    LicenseDialog,
+    EditAppDialog,
+    OptionsDialog,
+    SearchAppsDialog,
+    AddAppDialog
 )
 
 __all__ = [
     "MainWindow",
-    "AddAppDialog",
-    "EditAppDialog",
-    "AddProfileDialog",
+    "StyleManager",
     "ConfirmDialog",
-    "OptionsDialog",
+    "AddProfileDialog",
     "AboutDialog",
-    "LicenseDialog"
+    "LicenseDialog",
+    "EditAppDialog",
+    "OptionsDialog",
+    "SearchAppsDialog",
+    "AddAppDialog"
 ]

@@ -7,9 +7,8 @@ A Windows application that allows you to launch multiple applications simultaneo
 ## Features
 
 - **One-Click Launch** - Launch all your favorite applications in a profile with a single button click
-- **Profile System** - Organize apps into different profiles (Work, Gaming, Creative, etc.)
+- **Profile System** - Organize apps into different profiles (Work, Gaming, etc.)
 - **Modern UI** - Clean, modern interface with dark and light theme support
-- **App Icon Display** - Automatically extracts and displays icons from executable files
 - **Search Installed Apps** - Find and add applications from your system with built-in search
 - **Easy Configuration** - Add applications via file picker or search, no manual path editing required
 - **Advanced App Settings** - Set command-line arguments and working directories for each app
@@ -17,61 +16,17 @@ A Windows application that allows you to launch multiple applications simultaneo
 - **Keyboard Shortcuts** - Comprehensive keyboard shortcuts for faster workflow
 - **Auto-Start** - Option to launch with Windows startup
 - **Profile Management** - Duplicate, rename, import/export profiles easily
-- **Search & Filter** - Quickly find apps in large collections
 - **Window Memory** - Remembers window position and size
 - **Persistent Settings** - Your profiles and apps are automatically saved and restored
 - **Portable** - Standalone executable, no installation required
 
-## Screenshots
-
-The application features a clean, intuitive interface:
-
-- Profile selector dropdown for quick switching between app groups
-- Application list showing all apps in the current profile
-- Add/Remove buttons for easy app management
-- Large "Launch All" button for one-click launching
 
 ## Installation
-
-### Option 1: Standalone Executable (Recommended)
 
 1. Download `FavApp Starter.exe` from the [Releases](https://github.com/Andyucu/FavApp-Starter/releases) page
 2. Run the executable - no installation required
 3. The configuration file will be created automatically in the same directory
 
-### Option 2: Run from Source
-
-#### Prerequisites
-
-- Python 3.8 or higher
-- Windows operating system
-
-#### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/Andyucu/FavApp-Starter.git
-cd FavApp-Starter
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the application
-python main.py
-```
-
-## Building from Source
-
-To build the standalone executable yourself:
-
-```bash
-pip install -r requirements.txt
-python -m PyInstaller FavApp.spec --noconfirm
-```
-
-The executable will be created at `dist/FavApp Starter.exe`
-
-## Usage
 
 ### Getting Started
 
@@ -124,24 +79,6 @@ Access settings via **File > Options**:
 - **Ctrl+Q**: Exit application
 - **Del**: Remove selected apps
 
-## Configuration
-
-Settings are stored in `config.json` in the application directory:
-
-```json
-{
-  "active_profile": "Work",
-  "theme": "dark",
-  "profiles": {
-    "Work": {
-      "apps": [
-        {"name": "VS Code", "path": "C:\\Program Files\\Microsoft VS Code\\Code.exe"},
-        {"name": "Chrome", "path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"}
-      ]
-    }
-  }
-}
-```
 
 ## Supported File Types
 
@@ -155,7 +92,6 @@ Settings are stored in `config.json` in the application directory:
 ## System Requirements
 
 - Windows 10 or later
-- Python 3.8+ (for running from source)
 
 ## Project Structure
 
@@ -175,9 +111,6 @@ FavApp Starter/
 └── config.json          # User configuration (created at runtime)
 ```
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
@@ -187,7 +120,3 @@ This project is licensed under the GNU General Public License v3.0 (GPLv3) - see
 
 Created by Alexandru Teodorovici
 
-## Acknowledgments
-
-- Built with [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) for the modern UI
-- Packaged with [PyInstaller](https://pyinstaller.org/) for standalone distribution

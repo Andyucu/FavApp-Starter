@@ -5,6 +5,122 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [26.02.01] - 2026-01-27
+
+### Changed - MAJOR UPDATE: PyQt6 Migration
+
+- **Complete GUI framework migration from CustomTkinter to PyQt6**
+  - Resolved persistent CustomTkinter dialog icon bug (blue Tkinter icon issue)
+  - All dialogs now display correct FavApp icon consistently
+  - Better system integration with native Qt widgets
+  - Hardware-accelerated rendering for improved performance
+  - More reliable system tray icon using QSystemTrayIcon
+
+### Added
+
+- **New PyQt6 Implementation**
+  - Created `gui/qt/` directory with complete PyQt6 implementation
+  - `gui/qt/main_window_qt.py` - QMainWindow with full functionality
+  - `gui/qt/dialogs_qt.py` - All 8 dialog classes (1218 lines)
+    - ConfirmDialog - Yes/No confirmation with styled buttons
+    - AddProfileDialog - Profile creation with validation
+    - AboutDialog - App information with GPL license
+    - LicenseDialog - MIT license display
+    - EditAppDialog - Edit app properties (name, arguments, working directory)
+    - OptionsDialog - Settings dialog with theme selector, checkboxes, spinbox
+    - SearchAppsDialog - Threaded app discovery with real-time filtering
+    - AddAppDialog - Add apps with file browser or search
+  - `gui/qt/styles.py` - Complete theme system with QSS stylesheets
+    - Dark theme matching original CustomTkinter appearance
+    - Light theme
+    - System theme detection via Windows registry
+
+- **Widget Conversions**
+  - CTk/CTkToplevel → QMainWindow/QDialog
+  - CTkFrame → QWidget/QFrame
+  - CTkScrollableFrame → QScrollArea + QWidget
+  - CTkButton → QPushButton
+  - CTkEntry → QLineEdit
+  - CTkTextbox → QTextEdit (read-only)
+  - CTkCheckBox → QCheckBox
+  - CTkOptionMenu → QComboBox
+  - pystray.Icon → QSystemTrayIcon (no threading issues)
+  - tkinter.Menu → QMenuBar + QMenu
+
+- **Icon Improvements**
+  - Fixed aspect ratio preservation in icon display
+  - Proper QImage stride calculation (`bytes_per_line = 4 * width`)
+  - Smooth transformation scaling with aspect ratio preservation
+  - Centered alignment without forced scaling
+  - Icon caching for performance
+
+### Fixed
+
+- **Dialog icon bug** - Completely resolved CustomTkinter's persistent blue Tkinter icon issue
+  - Previous versions (26.01.27-26.01.30) attempted various workarounds
+  - PyQt6 QDialog natively supports proper icon display without hacks
+  - All dialog windows now show correct FavApp icon in title bar
+
+- **System tray reliability** - QSystemTrayIcon eliminates threading complexity
+  - No more separate thread for tray icon (pystray requirement)
+  - Thread-safe menu updates
+  - Built-in Qt integration with event loop
+
+### Technical Details
+
+- **Build System**
+  - Updated `FavApp.spec` for PyQt6 dependencies
+  - Removed CustomTkinter, tkinter, pystray from build
+  - Added PyQt6.QtCore, PyQt6.QtGui, PyQt6.QtWidgets
+  - Executable size: 49MB (optimized)
+
+- **Dependencies**
+  - Updated `requirements.txt` to PyQt6>=6.6.0
+  - Removed customtkinter>=5.2.0
+  - Removed pystray>=0.19.0
+  - Kept Pillow>=10.0.0 for icon extraction
+
+- **Legacy Support**
+  - Preserved CustomTkinter version as `main_ctk.py`
+  - Original `gui/main_window.py` and `gui/dialogs.py` retained
+  - Easy rollback option if needed
+
+---
+
+## [26.01.30] - 2026-01-24 (CustomTkinter - Legacy)
+
+### Fixed
+
+- **Dialog icons removed with delay** - Added delayed iconbitmap clearing to all dialogs
+  - Using `self.after(10, lambda: self.iconbitmap(bitmap=''))` to remove icon after window loads
+  - Applied to all 8 dialog classes (AddApp, EditApp, AddProfile, Confirm, Options, About, License, SearchApps)
+  - Should eliminate the blue Tkinter icon from all secondary windows
+
+---
+
+## [26.01.29] - 2026-01-24
+
+### Fixed
+
+- **Dialog icons fully removed** - Completely eliminated blue Tkinter icon from all dialogs
+  - Removed all `_set_icon()` method calls from dialog initialization
+  - Removed all `_set_icon()` method definitions
+  - Dialogs no longer attempt to set any icon at all
+  - Blue/teal Tk icon should now be completely gone from all secondary windows
+
+---
+
+## [26.01.28] - 2026-01-24
+
+### Fixed
+
+- **Dialog icons completely removed** - Fixed blue Tkinter icon still appearing in dialogs
+  - Changed icon removal method from pass to `iconbitmap("")`
+  - All dialog windows now display without any icon in title bar
+  - Fixes blue/teal Tk icon that was still showing in v26.01.27
+
+---
+
 ## [26.01.27] - 2026-01-24
 
 ### Changed
