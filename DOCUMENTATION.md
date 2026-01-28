@@ -26,7 +26,7 @@ FavApp Starter is a Windows application that allows you to launch multiple appli
 #### Prerequisites
 
 - Python 3.8 or higher
-- Windows operating system
+- Windows OS 10/11
 
 #### Setup
 
