@@ -1,7 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
 PyInstaller spec file for FavApp Starter (PyQt6 version).
-Build command: pyinstaller FavApp.spec --noconfirm
+
+Build command for version-specific output folder:
+    pyinstaller FavApp.spec --distpath "dist/v26.02.01" --noconfirm
+
+Or for default dist folder:
+    pyinstaller FavApp.spec --noconfirm
+
+Note: Update version number in --distpath when releasing new versions.
 """
 
 import os
@@ -26,6 +33,17 @@ a = Analysis(
         'PIL.Image',
         'PIL.ImageDraw',
         'PIL.ImageFont',
+        'core',
+        'core.config',
+        'core.launcher',
+        'core.app_finder',
+        'core.autostart',
+        'core.debug_logger',
+        'gui',
+        'gui.qt',
+        'gui.qt.main_window_qt',
+        'gui.qt.dialogs_qt',
+        'gui.qt.styles',
     ],
     hookspath=[],
     hooksconfig={},

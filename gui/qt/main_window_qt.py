@@ -89,12 +89,11 @@ class MainWindow(QMainWindow):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         # Set color based on icon type
-        if icon_type == 'delete':
-            color = QColor(217, 83, 79)  # Red
-        elif icon_type == 'save':
-            color = QColor(47, 165, 114)  # Green
+        # Save and delete use black icons (buttons have colored backgrounds)
+        if icon_type in ['save', 'delete']:
+            color = QColor(0, 0, 0)  # Black for visibility on colored buttons
         else:
-            color = QColor(255, 255, 255)  # White
+            color = QColor(255, 255, 255)  # White for other buttons
 
         pen = QPen(color)
         pen.setWidth(3)  # Increased from 2 to 3 for better visibility
@@ -111,10 +110,13 @@ class MainWindow(QMainWindow):
             painter.drawLine(center, margin + 2, center, size - margin - 2)
             painter.drawLine(margin + 2, center, size - margin - 2, center)
         elif icon_type == 'save':
-            # Floppy disk shape - filled with outline
-            painter.drawRect(margin, margin + 4, size - margin * 2, size - margin * 2 - 4)
-            painter.setBrush(QColor(30, 30, 30))  # Dark fill for the label area
-            painter.drawRect(margin + 4, margin + 4, size - margin * 2 - 8, 5)
+            # Checkmark - simple and highly visible
+            pen.setWidth(4)
+            painter.setPen(pen)
+            painter.setBrush(Qt.GlobalColor.transparent)
+            # Draw checkmark
+            painter.drawLine(margin + 2, center, center - 1, size - margin - 3)
+            painter.drawLine(center - 1, size - margin - 3, size - margin - 2, margin + 3)
         elif icon_type == 'duplicate':
             # Two overlapping rectangles - bold
             pen.setWidth(3)
@@ -123,13 +125,13 @@ class MainWindow(QMainWindow):
             painter.drawRect(margin, margin + 4, size - margin * 2 - 4, size - margin * 2 - 4)
             painter.drawRect(margin + 4, margin, size - margin * 2 - 4, size - margin * 2 - 4)
         elif icon_type == 'delete':
-            # Trash can - filled and bold
-            painter.drawRect(margin + 3, margin + 6, size - margin * 2 - 6, size - margin * 2 - 7)
+            # X mark - simple and highly visible
             pen.setWidth(4)
             painter.setPen(pen)
-            painter.drawLine(margin + 1, margin + 5, size - margin - 1, margin + 5)
-            painter.drawLine(center - 3, margin + 5, center - 3, margin + 2)
-            painter.drawLine(center + 3, margin + 5, center + 3, margin + 2)
+            painter.setBrush(Qt.GlobalColor.transparent)
+            # Draw X
+            painter.drawLine(margin + 3, margin + 3, size - margin - 3, size - margin - 3)
+            painter.drawLine(size - margin - 3, margin + 3, margin + 3, size - margin - 3)
         elif icon_type == 'edit':
             # Pencil shape - bold diagonal line
             pen.setWidth(4)
@@ -518,8 +520,8 @@ class MainWindow(QMainWindow):
 
         # Edit button
         edit_btn = QPushButton()
-        edit_btn.setIcon(self._create_button_icon('edit', 20))
-        edit_btn.setIconSize(QSize(20, 20))
+        edit_btn.setIcon(self._create_button_icon('edit', 24))
+        edit_btn.setIconSize(QSize(24, 24))
         edit_btn.setFixedSize(35, 35)
         edit_btn.setToolTip("Edit App")
         edit_btn.clicked.connect(lambda: self._edit_app(index, app))

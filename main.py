@@ -15,16 +15,31 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QIcon
 from core.config import ConfigManager
 from gui import MainWindow, StyleManager
 
 
 def main():
     """Application entry point."""
+    # Set Windows AppUserModelID for proper taskbar icon (Windows only)
+    if sys.platform == 'win32':
+        try:
+            import ctypes
+            myappid = 'andyucu.favappstarter.26.02.01'  # arbitrary string
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        except:
+            pass  # Silently fail on non-Windows or if it doesn't work
+
     # Create QApplication
     app = QApplication(sys.argv)
     app.setApplicationName("FavApp Starter")
     app.setOrganizationName("Alexandru Teodorovici")
+
+    # Set application icon for taskbar
+    icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets', 'icon.ico')
+    if os.path.exists(icon_path):
+        app.setWindowIcon(QIcon(icon_path))
 
     # Load configuration
     config = ConfigManager()

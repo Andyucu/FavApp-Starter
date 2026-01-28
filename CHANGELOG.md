@@ -5,7 +5,7 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [26.02.01] - 2026-01-27
+## [26.02.01] - 2026-01-28
 
 ### Changed - MAJOR UPDATE: PyQt6 Migration
 
@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - More reliable system tray icon using QSystemTrayIcon
 
 ### Added
+
+- **Programmatic Button Icons** - Replaced emoji icons with custom-drawn icons
+  - All icons now 24x24px with perfect 1:1 aspect ratio
+  - Add Profile: Plus sign icon
+  - Save Profile: Checkmark icon (black on green background)
+  - Duplicate Profile: Overlapping rectangles icon
+  - Delete Profile: X mark icon (black on red background)
+  - Edit App: Pencil icon
+  - Icons drawn with QPainter for consistent, crisp rendering
+  - No more font-dependent emoji display issues
 
 - **New PyQt6 Implementation**
   - Created `gui/qt/` directory with complete PyQt6 implementation
@@ -66,13 +76,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Thread-safe menu updates
   - Built-in Qt integration with event loop
 
+- **Taskbar icon** - Application now displays correct icon in Windows taskbar
+  - Added Windows AppUserModelID for proper taskbar icon grouping
+  - Set application icon via `app.setWindowIcon()`
+  - No more generic Python icon in taskbar
+
+- **Icon visibility** - Button icons now clearly visible on colored backgrounds
+  - Save and Delete profile icons changed to black for contrast
+  - All icons use bold 3-4px line widths for better visibility
+  - Checkmark and X mark icons easier to recognize than previous designs
+
+- **UI Layout Issues**
+  - Fixed Browse button overlapping Application field in Add Application dialog
+  - Changed text fields to use stretch layout instead of fixed widths
+  - Increased profile name text field height to 32px in New Profile dialog
+  - Text no longer cuts off in input fields
+
+- **App icon aspect ratios** - Icons in app list no longer appear compressed
+  - Icons padded to square canvas before scaling
+  - Proper aspect ratio preservation with centered alignment
+  - No more horizontally or vertically squished icons
+
 ### Technical Details
 
 - **Build System**
   - Updated `FavApp.spec` for PyQt6 dependencies
   - Removed CustomTkinter, tkinter, pystray from build
   - Added PyQt6.QtCore, PyQt6.QtGui, PyQt6.QtWidgets
-  - Executable size: 49MB (optimized)
+  - Added explicit hidden imports for all core and gui modules
+  - Version-specific build folders: `dist/v26.02.01/`
+  - Build command: `pyinstaller FavApp.spec --distpath "dist/v26.02.01" --noconfirm`
+  - Executable size: 45MB (optimized)
 
 - **Dependencies**
   - Updated `requirements.txt` to PyQt6>=6.6.0
@@ -80,10 +114,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed pystray>=0.19.0
   - Kept Pillow>=10.0.0 for icon extraction
 
+- **Debug Logging**
+  - Disabled debug.log file creation
+  - All logging code commented out in `core/debug_logger.py`
+  - All `log()` calls commented out in `core/launcher.py`
+  - Easy to re-enable by uncommenting code
+
 - **Legacy Support**
   - Preserved CustomTkinter version as `main_ctk.py`
-  - Original `gui/main_window.py` and `gui/dialogs.py` retained
-  - Easy rollback option if needed
+  - Original `gui/main_window.py` and `gui/dialogs.py` removed
+  - Easy rollback to CustomTkinter by using `main_ctk.py`
 
 ---
 

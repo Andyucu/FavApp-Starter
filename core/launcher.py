@@ -8,7 +8,7 @@ from PIL import Image
 import ctypes
 from ctypes import wintypes
 import io
-from .debug_logger import log
+# from .debug_logger import log  # Commented out - debug logging disabled
 
 
 class IconExtractor:
@@ -42,16 +42,16 @@ class IconExtractor:
         Returns:
             PIL Image of the icon, or None if extraction fails
         """
-        log(f"=== App Icon Extraction: {os.path.basename(path)} ===")
-        log(f"Full path: {path}")
-        log(f"Requested size: {size}")
+        # log(f"=== App Icon Extraction: {os.path.basename(path)} ===")
+        # log(f"Full path: {path}")
+        # log(f"Requested size: {size}")
 
         # Normalize path to Windows format (backslashes)
         path = os.path.normpath(path)
-        log(f"Normalized path: {path}")
+        # log(f"Normalized path: {path}")
 
         if not os.path.exists(path):
-            log(f"✗ Path does not exist: {path}")
+            # log(f"✗ Path does not exist: {path}")
             return None
 
         try:
@@ -64,19 +64,19 @@ class IconExtractor:
 
             if size <= 16:
                 flags |= IconExtractor.SHGFI_SMALLICON
-                log("Using SMALLICON flag")
+                # log("Using SMALLICON flag")
             else:
                 flags |= IconExtractor.SHGFI_LARGEICON
-                log("Using LARGEICON flag")
+                # log("Using LARGEICON flag")
 
-            log("Calling SHGetFileInfoW...")
+            # log("Calling SHGetFileInfoW...")
             result = shell32.SHGetFileInfoW(
                 path, 0, ctypes.byref(shinfo),
                 ctypes.sizeof(shinfo), flags
             )
 
             if result and shinfo.hIcon:
-                log(f"✓ SHGetFileInfoW succeeded, hIcon: {shinfo.hIcon}")
+                # log(f"✓ SHGetFileInfoW succeeded, hIcon: {shinfo.hIcon}")
                 # Convert HICON to PIL Image
                 icon_image = IconExtractor._hicon_to_image(shinfo.hIcon, size)
 
@@ -84,20 +84,22 @@ class IconExtractor:
                 ctypes.windll.user32.DestroyIcon(shinfo.hIcon)
 
                 if icon_image and icon_image.size[0] > 0:
-                    log(f"✓ Icon extracted successfully from: {os.path.basename(path)}")
-                    log("=== End App Icon Extraction (Success) ===\n")
+                    # log(f"✓ Icon extracted successfully from: {os.path.basename(path)}")
+                    # log("=== End App Icon Extraction (Success) ===\n")
                     return icon_image
                 else:
-                    log(f"✗ Icon extraction failed (invalid image): {os.path.basename(path)}")
+                    # log(f"✗ Icon extraction failed (invalid image): {os.path.basename(path)}")
+                    pass
             else:
-                log(f"✗ SHGetFileInfoW failed, result: {result}, hIcon: {shinfo.hIcon if result else 'N/A'}")
+                # log(f"✗ SHGetFileInfoW failed, result: {result}, hIcon: {shinfo.hIcon if result else 'N/A'}")
+                pass
 
         except Exception as e:
-            log(f"✗ Icon extraction error for {os.path.basename(path)}: {e}")
+            # log(f"✗ Icon extraction error for {os.path.basename(path)}: {e}")
             import traceback
-            log(traceback.format_exc())
+            # log(traceback.format_exc())
 
-        log("=== End App Icon Extraction (Failed) ===\n")
+        # log("=== End App Icon Extraction (Failed) ===\n")
         return None
 
     @staticmethod
@@ -121,7 +123,7 @@ class IconExtractor:
 
             icon_info = ICONINFO()
             if not GetIconInfo(hicon, ctypes.byref(icon_info)):
-                log("✗ GetIconInfo failed")
+                # log("✗ GetIconInfo failed")
                 return None
 
             # Get bitmap info
@@ -148,12 +150,12 @@ class IconExtractor:
                 )
 
                 if result == 0:
-                    log("✗ GetObjectW failed")
+                    # log("✗ GetObjectW failed")
                     return None
 
                 width = bmp.bmWidth
                 height = bmp.bmHeight
-                log(f"Icon bitmap size: {width}x{height}")
+                # log(f"Icon bitmap size: {width}x{height}")
 
                 # Create device context
                 # Define argument types for DC functions
@@ -221,7 +223,7 @@ class IconExtractor:
                 DeleteObject.restype = wintypes.BOOL
 
                 if lines == 0:
-                    log("✗ GetDIBits failed")
+                    # log("✗ GetDIBits failed")
                     # Cleanup before returning
                     DeleteDC(hdc_mem)
                     ReleaseDC(0, hdc)
@@ -247,15 +249,16 @@ class IconExtractor:
                 if img.size != (size, size):
                     img = img.resize((size, size), Image.Resampling.LANCZOS)
 
-                log(f"✓ Icon successfully converted to image: {img.size}")
+                # log(f"✓ Icon successfully converted to image: {img.size}")
                 return img
             else:
-                log("✗ No hbmColor in icon")
+                # log("✗ No hbmColor in icon")
+                pass
 
         except Exception as e:
-            log(f"✗ Exception in _hicon_to_image: {e}")
+            # log(f"✗ Exception in _hicon_to_image: {e}")
             import traceback
-            log(traceback.format_exc())
+            # log(traceback.format_exc())
 
         return None
 

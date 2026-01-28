@@ -1,27 +1,40 @@
 # FavApp Starter
 
-A Windows application that allows you to launch multiple applications simultaneously with a single click. Organize your favorite apps into profiles for different contexts like Work, Gaming, or Creative tasks.
+A modern Windows application that allows you to launch multiple applications simultaneously with a single click. Organize your favorite apps into profiles for different contexts like Work, Gaming, or Creative tasks.
 
 ![FavApp Starter](assets/icon_readme.png)
 
+
 ## Features
 
-- **One-Click Launch** - Launch all your favorite applications in a profile with a single button click
-- **Profile System** - Organize apps into different profiles (Work, Gaming, etc.)
-- **Modern UI** - Clean, modern interface with dark and light theme support
-- **Search Installed Apps** - Find and add applications from your system with built-in search
-- **Easy Configuration** - Add applications via file picker or search, no manual path editing required
-- **Advanced App Settings** - Set command-line arguments and working directories for each app
-- **System Tray** - Minimize to system tray with quick access menu
-- **Keyboard Shortcuts** - Comprehensive keyboard shortcuts for faster workflow
+- **One-Click Launch** 
+  - Launch all your favorite applications in a profile with a single button click
+- **Profile System** 
+  - Organize apps into different profiles (Work, Gaming, etc.)
+- **Modern UI** 
+  - Native PyQt6 interface with hardware-accelerated rendering
+  - Clean, modern design with dark and light theme support
+- **Search Installed Apps** 
+  - Find and add applications from your system with built-in search
+- **Easy Configuration** 
+  - Add applications via file picker or search, no manual path editing required
+- **Advanced App Settings** 
+  - Set command-line arguments and working directories for each app
+- **System Tray** 
+  - Launch any profile directly from tray
+  - Minimize to tray functionality
+  - Auto-refreshing menu on profile changes
+- **Keyboard Shortcuts** 
+  - Comprehensive keyboard shortcuts for faster workflow
 - **Auto-Start** - Option to launch with Windows startup
 - **Profile Management** - Duplicate, rename, import/export profiles easily
-- **Window Memory** - Remembers window position and size
 - **Persistent Settings** - Your profiles and apps are automatically saved and restored
-- **Portable** - Standalone executable, no installation required
+- **Portable** - Standalone executable (45MB), no installation required
 
 
 ## Installation
+
+### For Users
 
 1. Download `FavApp Starter.exe` from the [Releases](https://github.com/Andyucu/FavApp-Starter/releases) page
 2. Run the executable - no installation required
@@ -93,21 +106,37 @@ Access settings via **File > Options**:
 
 - Windows 10 or later
 
+## Technology Stack
+
+- **PyQt6** - Modern GUI framework with native Qt widgets
+- **Python 3.x** - Core language
+
 ## Project Structure
 
 ```text
 FavApp Starter/
-├── main.py              # Application entry point
+├── main.py              # Application entry point (PyQt6)
+├── main_ctk.py          # Legacy CustomTkinter version (backup)
 ├── core/
 │   ├── config.py        # Configuration management
-│   └── launcher.py      # App launching logic
+│   ├── launcher.py      # App launching logic
+│   ├── app_finder.py    # Installed app discovery
+│   ├── autostart.py     # Windows startup integration
+│   └── debug_logger.py  # Logging utilities (disabled by default)
 ├── gui/
-│   ├── main_window.py   # Main application window
-│   └── dialogs.py       # Dialog windows
+│   ├── qt/              # PyQt6 implementation
+│   │   ├── main_window_qt.py  # Main window (QMainWindow)
+│   │   ├── dialogs_qt.py      # All 8 dialog classes
+│   │   └── styles.py          # QSS stylesheet manager
+│   └── __init__.py      # Package exports
 ├── assets/
-│   └── icon.ico         # Application icon
+│   ├── icon.ico         # Application icon
+│   └── icon_readme.png  # README icon
+├── dist/
+│   └── v26.02.01/       # Version-specific build output
+│       └── FavApp Starter.exe  # Standalone executable (45MB)
 ├── FavApp.spec          # PyInstaller build configuration
-├── requirements.txt     # Python dependencies
+├── requirements.txt     # Python dependencies (PyQt6, Pillow)
 └── config.json          # User configuration (created at runtime)
 ```
 

@@ -35,44 +35,49 @@ class DebugLogger:
 
         self._log_file_path = os.path.join(base_dir, "debug.log")
 
-        # Open log file in append mode
-        try:
-            self._log_file = open(self._log_file_path, 'a', encoding='utf-8')
-            self.log("=" * 80)
-            self.log(f"FavApp Starter Debug Log - Session started")
-            self.log(f"Log file: {self._log_file_path}")
-            self.log("=" * 80)
-        except Exception as e:
-            print(f"Failed to open log file: {e}")
-            self._log_file = None
+        # Open log file in append mode - DISABLED (uncomment to enable debug logging)
+        # try:
+        #     self._log_file = open(self._log_file_path, 'a', encoding='utf-8')
+        #     self.log("=" * 80)
+        #     self.log(f"FavApp Starter Debug Log - Session started")
+        #     self.log(f"Log file: {self._log_file_path}")
+        #     self.log("=" * 80)
+        # except Exception as e:
+        #     print(f"Failed to open log file: {e}")
+        #     self._log_file = None
+        self._log_file = None  # Debug logging disabled
 
     def log(self, message: str):
         """Write a message to the log file and console."""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-        log_line = f"[{timestamp}] {message}"
+        # Debug logging disabled - uncomment to enable
+        pass
+        # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        # log_line = f"[{timestamp}] {message}"
 
-        # Write to console
-        print(log_line)
+        # # Write to console
+        # print(log_line)
 
-        # Write to file
-        if self._log_file:
-            try:
-                self._log_file.write(log_line + "\n")
-                self._log_file.flush()  # Ensure immediate write
-            except Exception as e:
-                print(f"Failed to write to log file: {e}")
+        # # Write to file
+        # if self._log_file:
+        #     try:
+        #         self._log_file.write(log_line + "\n")
+        #         self._log_file.flush()  # Ensure immediate write
+        #     except Exception as e:
+        #         print(f"Failed to write to log file: {e}")
 
     def close(self):
         """Close the log file."""
-        if self._log_file:
-            try:
-                self.log("=" * 80)
-                self.log("Session ended")
-                self.log("=" * 80 + "\n")
-                self._log_file.close()
-                self._log_file = None
-            except Exception:
-                pass
+        # Debug logging disabled - uncomment to enable
+        pass
+        # if self._log_file:
+        #     try:
+        #         self.log("=" * 80)
+        #         self.log("Session ended")
+        #         self.log("=" * 80 + "\n")
+        #         self._log_file.close()
+        #         self._log_file = None
+        #     except Exception:
+        #         pass
 
     def __del__(self):
         """Cleanup when logger is destroyed."""

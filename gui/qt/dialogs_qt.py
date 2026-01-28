@@ -154,6 +154,7 @@ class AddProfileDialog(QDialog):
 
         self.name_entry = QLineEdit()
         self.name_entry.setPlaceholderText("e.g., Work, Gaming, Creative")
+        self.name_entry.setMinimumHeight(32)
         self.name_entry.returnPressed.connect(self._on_create_click)
         layout.addWidget(self.name_entry)
 
@@ -1079,8 +1080,8 @@ class AddAppDialog(QDialog):
 
         self.path_entry = QLineEdit()
         self.path_entry.setReadOnly(True)
-        self.path_entry.setFixedWidth(300)
-        path_layout.addWidget(self.path_entry)
+        self.path_entry.setMinimumWidth(200)
+        path_layout.addWidget(self.path_entry, stretch=1)
 
         browse_button = QPushButton("Browse...")
         browse_button.setFixedWidth(85)
@@ -1103,8 +1104,8 @@ class AddAppDialog(QDialog):
 
         self.name_entry = QLineEdit()
         self.name_entry.setPlaceholderText("Enter a display name")
-        self.name_entry.setFixedWidth(470)
-        name_layout.addWidget(self.name_entry)
+        self.name_entry.setMinimumWidth(200)
+        name_layout.addWidget(self.name_entry, stretch=1)
 
         layout.addLayout(name_layout)
 
@@ -1116,8 +1117,8 @@ class AddAppDialog(QDialog):
 
         self.args_entry = QLineEdit()
         self.args_entry.setPlaceholderText("Command-line arguments (optional)")
-        self.args_entry.setFixedWidth(470)
-        args_layout.addWidget(self.args_entry)
+        self.args_entry.setMinimumWidth(200)
+        args_layout.addWidget(self.args_entry, stretch=1)
 
         layout.addLayout(args_layout)
 
@@ -1129,8 +1130,8 @@ class AddAppDialog(QDialog):
 
         self.workdir_entry = QLineEdit()
         self.workdir_entry.setPlaceholderText("Working directory (optional)")
-        self.workdir_entry.setFixedWidth(470)
-        workdir_layout.addWidget(self.workdir_entry)
+        self.workdir_entry.setMinimumWidth(200)
+        workdir_layout.addWidget(self.workdir_entry, stretch=1)
 
         layout.addLayout(workdir_layout)
 
