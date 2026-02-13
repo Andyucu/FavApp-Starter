@@ -2,8 +2,7 @@
 
 A modern Windows application that allows you to launch multiple applications simultaneously with a single click. Organize your favorite apps into profiles for different contexts like Work, Gaming, or Creative tasks.
 
-buymeacoffee.com/anditeodorovici
-
+<a href="https://www.buymeacoffee.com/anditeodorovici" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ![FavApp Starter](assets/icon_readme.png)
 
