@@ -36,6 +36,13 @@ env/
 *.swp
 *.swo
 
+# Claude Code
+.claude/
+CLAUDE.md
+PLAN.md
+
 # OS
 .DS_Store
 Thumbs.db
+.zed/
+nul

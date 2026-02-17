@@ -5,10 +5,23 @@ All notable changes to FavApp Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [26.02.01] - 2026-01-28
-
+## [26.2.2] - 2026-02-02
 
 ### Added
+
+- **`.favapp` File Extension Support** - Double-click profiles to launch apps
+  - Export profiles as standalone `.favapp` files via Profile menu
+  - Import profiles from `.favapp` files
+  - Windows registry integration for file association
+  - Double-click `.favapp` files to launch all apps in that profile
+  - "Register .favapp file extension" option in Options dialog
+  - Command-line argument support for opening `.favapp` files
+  - Share profiles with others as portable files
+
+- **Profile Export/Import UI**
+  - Profile Menu → Export Profile... (saves as `.favapp`)
+  - Profile Menu → Import Profiles... (supports `.favapp` and `.json`)
+  - File dialogs with proper extension filtering
 
 - **Programmatic Button Icons**
   - All icons now 24x24px with perfect 1:1 aspect ratio

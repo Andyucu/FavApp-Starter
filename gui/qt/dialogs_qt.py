@@ -14,6 +14,7 @@ from PyQt6.QtGui import QIcon
 
 from core.autostart import AutoStart
 from core.app_finder import AppFinder
+from core.file_association import FileAssociation
 
 
 class ConfirmDialog(QDialog):
@@ -715,6 +716,13 @@ class OptionsDialog(QDialog):
         self.autostart_check.stateChanged.connect(self._on_autostart_toggle)
         settings_layout.addWidget(self.autostart_check)
 
+        # Register .favapp file association
+        self.file_assoc_check = QCheckBox("Register .favapp file extension")
+        self.file_assoc_check.setChecked(FileAssociation.is_registered())
+        self.file_assoc_check.stateChanged.connect(self._on_file_assoc_toggle)
+        self.file_assoc_check.setToolTip("Double-click .favapp files to launch their apps")
+        settings_layout.addWidget(self.file_assoc_check)
+
         # Confirm on exit
         self.confirm_exit_check = QCheckBox("Confirm before exit")
         self.confirm_exit_check.setChecked(self.config.get_setting("confirm_on_exit", False))
@@ -779,6 +787,17 @@ class OptionsDialog(QDialog):
             if not AutoStart.disable():
                 self.autostart_check.setChecked(True)
                 self._show_error("Failed to disable auto-start.")
+
+    def _on_file_assoc_toggle(self):
+        """Handle file association toggle."""
+        if self.file_assoc_check.isChecked():
+            if not FileAssociation.register():
+                self.file_assoc_check.setChecked(False)
+                self._show_error("Failed to register .favapp file extension. Make sure you have proper permissions.")
+        else:
+            if not FileAssociation.unregister():
+                self.file_assoc_check.setChecked(True)
+                self._show_error("Failed to unregister .favapp file extension.")
 
     def _show_error(self, message: str):
         """Show error message."""

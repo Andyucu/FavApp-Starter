@@ -26,7 +26,7 @@ from .styles import StyleManager
 class MainWindow(QMainWindow):
     """Main application window using PyQt6."""
 
-    APP_VERSION = "26.02.01"
+    APP_VERSION = "26.2.2"
     APP_AUTHOR = "Alexandru Teodorovici"
 
     def __init__(self, config: ConfigManager):
@@ -703,19 +703,84 @@ class MainWindow(QMainWindow):
         pass
 
     def _export_profile(self):
-        """Export current profile."""
-        # Placeholder
-        pass
+        """Export current profile as .favapp file."""
+        from PyQt6.QtWidgets import QFileDialog
+
+        profile_name = self.config.get_active_profile()
+        default_filename = f"{profile_name}.favapp"
+
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export Profile",
+            default_filename,
+            "FavApp Profile Files (*.favapp);;All Files (*)"
+        )
+
+        if filename:
+            if not filename.lower().endswith('.favapp'):
+                filename += '.favapp'
+
+            if self.config.export_profile(profile_name, filename):
+                self.status_label.setText(f"Exported: {profile_name}")
+            else:
+                self.status_label.setText(f"Failed to export: {profile_name}")
 
     def _export_all_profiles(self):
-        """Export all profiles."""
-        # Placeholder
-        pass
+        """Export all profiles to a single file."""
+        from PyQt6.QtWidgets import QFileDialog
+
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export All Profiles",
+            "FavApp_Profiles.json",
+            "JSON Files (*.json);;All Files (*)"
+        )
+
+        if filename:
+            if self.config.export_all_profiles(filename):
+                count = len(self.config.get_profiles())
+                self.status_label.setText(f"Exported {count} profile(s)")
+            else:
+                self.status_label.setText("Failed to export profiles")
 
     def _import_profiles(self):
-        """Import profiles."""
-        # Placeholder
-        pass
+        """Import profiles from file (.favapp or .json)."""
+        from PyQt6.QtWidgets import QFileDialog
+
+        filename, _ = QFileDialog.getOpenFileName(
+            self,
+            "Import Profile(s)",
+            "",
+            "FavApp Files (*.favapp *.json);;All Files (*)"
+        )
+
+        if filename:
+            success = False
+            if filename.lower().endswith('.favapp'):
+                # Import single profile
+                success = self.config.import_profile_from_file(filename)
+                if success:
+                    self._refresh_profile_list()
+                    self.status_label.setText("Profile imported successfully")
+                else:
+                    self.status_label.setText("Failed to import profile")
+            elif filename.lower().endswith('.json'):
+                # Import multiple profiles
+                try:
+                    import json
+                    with open(filename, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                    count = self.config.import_all_profiles(data, replace=False)
+                    if count > 0:
+                        self._refresh_profile_list()
+                        self.status_label.setText(f"Imported {count} profile(s)")
+                        success = True
+                    else:
+                        self.status_label.setText("No profiles imported")
+                except Exception:
+                    self.status_label.setText("Failed to import profiles")
+            else:
+                self.status_label.setText("Unsupported file format")
 
     def _show_add_app_dialog(self):
         """Show dialog to add a new app."""

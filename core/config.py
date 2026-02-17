@@ -418,3 +418,31 @@ class ConfigManager:
             return count
         except Exception:
             return 0
+
+    def load_profile_from_file(self, filepath: str) -> Optional[dict]:
+        """Load profile data from a .favapp file. Returns profile data or None."""
+        try:
+            if not os.path.exists(filepath):
+                return None
+
+            with open(filepath, "r", encoding="utf-8") as f:
+                profile_data = json.load(f)
+
+            # Validate the file format
+            if "name" not in profile_data or "data" not in profile_data:
+                return None
+
+            # Ensure it has apps list
+            if "apps" not in profile_data["data"]:
+                profile_data["data"]["apps"] = []
+
+            return profile_data
+        except Exception:
+            return None
+
+    def import_profile_from_file(self, filepath: str, new_name: Optional[str] = None) -> bool:
+        """Import a profile from a .favapp file."""
+        profile_data = self.load_profile_from_file(filepath)
+        if profile_data:
+            return self.import_profile(profile_data, new_name)
+        return False

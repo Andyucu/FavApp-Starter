@@ -182,8 +182,6 @@ If the application fails to start due to config errors:
 
 ## Technical Details
 
-### Dependencies
-- `customtkinter` - Modern tkinter-based GUI framework
 
 ### Supported File Types
 - `.exe` - Windows executables

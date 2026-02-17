@@ -3,7 +3,7 @@
 PyInstaller spec file for FavApp Starter (PyQt6 version).
 
 Build command for version-specific output folder:
-    pyinstaller FavApp.spec --distpath "dist/v26.02.01" --noconfirm
+    pyinstaller FavApp.spec --distpath "dist/v26.2.2" --noconfirm
 
 Or for default dist folder:
     pyinstaller FavApp.spec --noconfirm

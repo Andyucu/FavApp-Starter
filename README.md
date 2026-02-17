@@ -135,7 +135,7 @@ FavApp Starter/
 │   ├── icon.ico         # Application icon
 │   └── icon_readme.png  # README icon
 ├── dist/
-│   └── v26.02.01/       # Version-specific build output
+│   └── v26.2.2/         # Version-specific build output
 │       └── FavApp Starter.exe  # Standalone executable (45MB)
 ├── FavApp.spec          # PyInstaller build configuration
 ├── requirements.txt     # Python dependencies (PyQt6, Pillow)
